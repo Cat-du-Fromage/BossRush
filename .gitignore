@@ -1,0 +1,38 @@
+# Fichiers générés par MonoGame / .NET
+bin/
+obj/
+*.pdb
+*.exe
+*.dll
+*.cache
+*.mgcontent
+
+# Dossiers de build MonoGame
+Content/bin/
+Content/obj/
+
+# Fichiers utilisateur (IDE/Editors)
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userprefs
+
+# Fichiers temporaires
+*.tmp
+*.log
+*.bak
+*.swp
+
+# Assets bruts (optionnel, si vous versionnez uniquement les .xnb)
+Content/*.png
+Content/*.jpg
+Content/*.wav
+Content/*.mp3
+Content/*.fbx
+Content/*.ttf
+
+# Fichiers de packages NuGet
+packages/
+*.nupkg
