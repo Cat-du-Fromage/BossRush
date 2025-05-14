@@ -68,7 +68,8 @@ public class Enemy : EntityBase
         Vector2 direction = (playerPosition - Position);
         direction.Normalize();
         Velocity = direction * MoveSpeed;
-        //2) Translation ou rotation
+        
+        //TODO faire la rotation
     }
 
     public void Attack()
