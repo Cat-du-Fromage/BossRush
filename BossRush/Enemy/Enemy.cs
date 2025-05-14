@@ -1,11 +1,14 @@
 ﻿using System;
+using BossRush.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace BossRush.Enemy;
 
-public class Enemy
+public class Enemy : EntityBase
 {
+    private Texture2D texture;
+    
     public string Name { get; private set; }
     public int BaseHealth { get; private set; }
     public int CurrentHealth { get; private set; }
@@ -13,25 +16,48 @@ public class Enemy
     
     public float Range { get; private set; }
     
+    
+    public override bool IsAlive() => CurrentHealth > 0;
+    
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                             ◆◆◆◆◆◆ CONSTRUCTOR ◆◆◆◆◆◆                                              ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 
-    private Enemy() { }
+    protected Enemy(Vector2 position, Vector2 velocity, Game game) : base(position, velocity, game)
+    {
+        Enabled = false;
+        Visible = false;
+        texture = game.Content.Load<Texture2D>("triangleRed");
+    }
+
+    private Enemy(Game game) : this(Vector2.Zero, Vector2.Zero, game) { }
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                           ◆◆◆◆◆◆ MONOGAME EVENTS ◆◆◆◆◆◆                                            ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
-    public void Update(GameTime gameTime/*, Vector2 playerPosition*/)
+
+    public void OnUpdate(GameTime gameTime, Vector2 playerPosition)
     {
         // Si a porté => tirer
         // Sinon => Avancer
+        //double deltaTime = gameTime.ElapsedGameTime.TotalMilliseconds;
+        Move(playerPosition);
+        Update(gameTime);
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void OnDraw(SpriteBatch spriteBatch)
     {
-        //Sprite.Draw(spriteBatch, Transform);
+        spriteBatch.Draw(texture,
+            Position,
+            null,
+            Color.White,
+            0f,
+            new Vector2(texture.Width / 2, texture.Height / 2),
+            new Vector2(0.005f, 0.005f),
+            SpriteEffects.None,
+            0f);
     }
+    
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                            ◆◆◆◆◆◆ CLASS METHODS ◆◆◆◆◆◆                                             ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -39,6 +65,9 @@ public class Enemy
     public void Move(Vector2 playerPosition)
     {
         //1) prendre la Position du joueur
+        Vector2 direction = (playerPosition - Position);
+        direction.Normalize();
+        Velocity = direction * MoveSpeed;
         //2) Translation ou rotation
     }
 
@@ -55,7 +84,9 @@ public class Enemy
 //-====================================================================================================================-
     public class Builder
     {
-        private readonly Enemy enemy = new Enemy();
+        private readonly Enemy enemy;
+
+        public Builder(Vector2 position, Vector2 velocity, Game game) => enemy = new Enemy(position, velocity, game);
         
         public Builder WithName(string name)
         {

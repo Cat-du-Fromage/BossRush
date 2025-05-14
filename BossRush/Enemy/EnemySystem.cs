@@ -25,7 +25,7 @@ public class EnemySystem
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                           ◆◆◆◆◆◆ MONOGAME EVENTS ◆◆◆◆◆◆                                            ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
-    public void Update(GameTime gameTime)
+    public void Update(GameTime gameTime, Vector2 target)
     {
         for (int i = Enemies.Count - 1; i > -1; i--)
         {
@@ -35,17 +35,19 @@ public class EnemySystem
             }
             else
             {
-                Enemies[i].Update(gameTime);
+                Enemies[i].OnUpdate(gameTime, target);
             }
         }
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
+        spriteBatch.Begin();
         foreach (Enemy enemy in Enemies)
         {
-            enemy.Draw(spriteBatch);
+            enemy.OnDraw(spriteBatch);
         }
+        spriteBatch.End();
     }
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
