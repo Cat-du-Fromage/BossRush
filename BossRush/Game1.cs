@@ -1,33 +1,31 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+// ReSharper disable All
 
 namespace BossRush;
 
 public class Game1 : Game
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
+    private GraphicsDeviceManager graphics;
+    private SceneManager sceneManager;
 
     public Game1()
     {
-        _graphics = new GraphicsDeviceManager(this);
+        Globals.GameInstance = this;
+        graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
-
-    protected override void Initialize()
-    {
-        // TODO: Add your initialization logic here
-
-        base.Initialize();
-    }
-
+    
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-        // TODO: use this.Content to load your game content here
+        Globals.GraphicsDevice = GraphicsDevice;
+        Globals.SpriteBatch = new SpriteBatch(GraphicsDevice);
+        Globals.Content = Content;
+        Globals.LoadContent();
+        
+        sceneManager = new SceneManager(new GameManager());
     }
 
     protected override void Update(GameTime gameTime)
@@ -35,6 +33,7 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
+        sceneManager.Update();
         // TODO: Add your update logic here
 
         base.Update(gameTime);
@@ -44,7 +43,7 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        // TODO: Add your drawing code here
+        sceneManager.GetFrame();
 
         base.Draw(gameTime);
     }

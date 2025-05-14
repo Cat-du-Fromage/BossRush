@@ -13,3 +13,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/build:default.spritefont
