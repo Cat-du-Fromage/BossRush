@@ -1,22 +1,11 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace BossRush.Entities;
 
 public class Projectile : EntityBase
 {
-    private float _maxSpeed;
-    private float _maxAcceleration;
-    private Vector2 targetPosition;
-    
-    private EntityBase _owner;
-    private EntityBase _targetEntity;
-
-    private float _damage;
-    private float _knockback;
-    private float _stun;
-    
-    
     private Projectile(Game game, Vector2 pos, Vector2 vel) : base(pos,vel,game){}
 
     public override bool IsAlive()
@@ -34,8 +23,19 @@ public class Projectile : EntityBase
         public abstract void OnDeath();
     }
 
-    private IDirect _direct;
-    private IDeath _death;
+    public float MaxSpeed { get; private set; }
+    public float MaxAcceleration{ get; private set; }
+    public Vector2 TargetPosition{ get; private set; }
+    
+    public EntityBase Owner{ get; private set; }
+    public EntityBase TargetEntity{ get; private set; }
+
+    public float Damage{ get; private set; }
+    public float Knockback{ get; private set; }
+    public float Stun{ get; private set; }
+    
+    public IDirect Direct{ get; private set; }
+    public IDeath Death{ get; private set; }
 
     public class Builder
     {
@@ -118,13 +118,19 @@ public class Projectile : EntityBase
 
     private Projectile(Builder builder) : base(builder.Position,builder.Velocity,builder.Game)
     {
-        _maxSpeed =  builder.MaxSpeed;
-        _maxAcceleration =  builder.MaxAcceleration;
-        targetPosition =  builder.TargetPosition;
-        _owner =  builder.Owner;
-        _targetEntity = builder.TargetEntity;
-        _damage =  builder.Damage;
-        _knockback =   builder.Knockback;
-        _stun =   builder.Stun;
+        MaxSpeed = builder.MaxSpeed;
+        MaxAcceleration = builder.MaxAcceleration;
+        TargetPosition = builder.TargetPosition;
+        Owner = builder.Owner;
+        TargetEntity = builder.TargetEntity;
+        Damage = builder.Damage;
+        Knockback = builder.Knockback;
+        Stun = builder.Stun;
+    }
+
+    public override void Draw(GameTime gameTime)
+    {
+        
+        base.Draw(gameTime);
     }
 }

@@ -8,6 +8,7 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    private BasicEffect _basicEffect;
 
     public Game1()
     {
@@ -26,6 +27,7 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
+        new SimpleShapes(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
     }
@@ -45,6 +47,7 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         // TODO: Add your drawing code here
+        SimpleShapes.Rectangle(new Vector2(50,50),new Vector2(20,150),Color.Red);
 
         base.Draw(gameTime);
     }
