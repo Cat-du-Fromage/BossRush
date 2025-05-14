@@ -7,7 +7,7 @@ namespace BossRush.Scenes.UIComponents;
 
 public class Button
 {
-    private const int BUTTON_OFFSET = 2;
+    private const int BUTTON_OFFSET = 5;
     private static readonly Color BACKGROUND_COLOR = new Color(250, 129, 47);
     private static readonly Color COLOR = new Color(255, 178, 44);
     private static readonly Color TEXT_COLOR = new Color(254, 243, 226);
@@ -18,52 +18,51 @@ public class Button
     private const int HEIGHT = 100;
     
     private Rectangle bounds;
+    private Rectangle outerBounds;
     private string text;
     private bool isHovered;
     private bool isPressed;
     private Action onClick;
     public Vector2 position { get; private set; }
 
-    public Button(string text, float x, float y, Action onClick = null)
+    public Button(string text, int x, int y, Action onClick = null)
     {
         this.text = text;
         this.onClick = onClick;
-        this.position = new Vector2(x, y);
-        this.bounds = new Rectangle((int)x, (int)y, WIDTH, HEIGHT);
+        outerBounds = new Rectangle(x - (WIDTH / 2), y - (HEIGHT / 2), WIDTH, HEIGHT);
+        bounds = new Rectangle(outerBounds.X - BUTTON_OFFSET, outerBounds.Y - BUTTON_OFFSET, outerBounds.Width, outerBounds.Height);
+
+        BUTTON.SetData(new[] { Color.White });
     }
-    
-    
+  
     public void Draw()
     {
-        Globals.SpriteBatch.Draw(BUTTON, position, BACKGROUND_COLOR);
-        
-        Vector2 buttonRect = new Vector2(position.X + BUTTON_OFFSET, position.Y + BUTTON_OFFSET);
+        // Draw the button background
+        Globals.SpriteBatch.Draw(BUTTON, bounds, BACKGROUND_COLOR);
+
+        // Draw the button foreground with the current state color
         Color currentColor = isPressed ? PRESSED_COLOR :
             isHovered ? HOVER_COLOR :
             COLOR;
-        
-        Globals.SpriteBatch.Draw(BUTTON, buttonRect, COLOR);
-        
+        Globals.SpriteBatch.Draw(BUTTON, outerBounds, currentColor);
+
+        // Draw the button text
         Vector2 textSize = Globals.Font.MeasureString(text);
         Vector2 textPos = new Vector2(
-            bounds.X + (bounds.Width - textSize.X) / 2,
-            bounds.Y + (bounds.Height - textSize.Y) / 2
+            outerBounds.X + (outerBounds.Width - textSize.X) / 2,
+            outerBounds.Y + (outerBounds.Height - textSize.Y) / 2
         );
+        Globals.SpriteBatch.DrawString(Globals.Font, text, textPos, TEXT_COLOR);
+
     }
     
     public void Update()
     {
         var mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
-        isHovered = mouseState.X >= position.X && mouseState.X <= position.X + bounds.Width &&
-                    mouseState.Y >= position.Y && mouseState.Y <= position.Y + bounds.Height;
+        isHovered = mouseState.X >= outerBounds.X && mouseState.X <= outerBounds.X + outerBounds.Width &&
+                    mouseState.Y >= outerBounds.Y && mouseState.Y <= outerBounds.Y + outerBounds.Height;
         
-        if (isHovered && mouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed)
-        {
-            isPressed = true;
-        }
-        else
-        {
-            isPressed = false;
-        }
+        isPressed = isHovered && mouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed;
+
     }
 }

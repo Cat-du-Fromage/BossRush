@@ -14,6 +14,9 @@ public class Game1 : Game
     {
         Globals.GameInstance = this;
         graphics = new GraphicsDeviceManager(this);
+        graphics.PreferredBackBufferWidth = 1280;
+        graphics.PreferredBackBufferHeight = 720;
+        graphics.ApplyChanges();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
@@ -43,7 +46,11 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        sceneManager.GetFrame();
+        RenderTarget2D frame = sceneManager.GetFrame();
+        
+        Globals.SpriteBatch.Begin();
+        Globals.SpriteBatch.Draw(frame, new Rectangle(0, 0, Globals.ScreenSize.X, Globals.ScreenSize.Y), Color.White);
+        Globals.SpriteBatch.End();
 
         base.Draw(gameTime);
     }

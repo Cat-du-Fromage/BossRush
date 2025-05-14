@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using BossRush.Scenes.UIComponents;
 using Microsoft.Xna.Framework;
 
@@ -13,20 +14,20 @@ public class Menu(GameManager gm, SceneManager sm) : Scene(gm, sm)
     
     protected override void Load()
     {
-        
         var startAction = sm.SwitchScene;
         var exitAction = sm.Exit;
-        
-        float centerX = Globals.ScreenSize.X / 2;
-        float centerY = Globals.ScreenSize.Y / 2;
-        Console.WriteLine("Loading Menu");
 
-        startButton = new Button("Start", centerX - 100, centerY - 100, startAction);
-        exitButton = new Button("Exit", centerX - 100, centerY + 100, exitAction);
+        var centerX = Globals.ScreenSize.X / 2;
+        var centerY = Globals.ScreenSize.Y / 2;
+        
+        startButton = new Button("Start", centerX, centerY - 100, startAction);
+        exitButton = new Button("Exit", centerX, centerY + 100, exitAction);
     }
 
     protected override void Draw()
     {
+        // Draw a blue background
+        Globals.SpriteBatch.Draw(Globals.WhitePixel, new Rectangle(0, 0, (int)Globals.ScreenSize.X, (int)Globals.ScreenSize.Y), new Color(249,239,233));
         startButton.Draw();
         exitButton.Draw();
     }

@@ -26,7 +26,6 @@ public abstract class Scene
     {
         Globals.GraphicsDevice.SetRenderTarget(target);
         Globals.GraphicsDevice.Clear(Color.Transparent);
-
         Globals.SpriteBatch.Begin();
         Draw();
         Globals.SpriteBatch.End();
