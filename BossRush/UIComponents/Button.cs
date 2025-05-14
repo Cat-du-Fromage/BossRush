@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 // ReSharper disable All
 
 namespace BossRush.Scenes.UIComponents;
@@ -16,6 +17,7 @@ public class Button
     private static readonly Texture2D BUTTON = new Texture2D(Globals.GraphicsDevice, 1, 1);
     private const int WIDTH = 500;
     private const int HEIGHT = 100;
+    private ButtonState currentState;
     
     private Rectangle bounds;
     private Rectangle outerBounds;
@@ -24,14 +26,13 @@ public class Button
     private bool isPressed;
     private Action onClick;
     public Vector2 position { get; private set; }
-
     public Button(string text, int x, int y, Action onClick = null)
     {
         this.text = text;
         this.onClick = onClick;
         outerBounds = new Rectangle(x - (WIDTH / 2), y - (HEIGHT / 2), WIDTH, HEIGHT);
         bounds = new Rectangle(outerBounds.X - BUTTON_OFFSET, outerBounds.Y - BUTTON_OFFSET, outerBounds.Width, outerBounds.Height);
-
+        currentState = ButtonState.Released;
         BUTTON.SetData(new[] { Color.White });
     }
   
@@ -61,8 +62,13 @@ public class Button
         var mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
         isHovered = mouseState.X >= outerBounds.X && mouseState.X <= outerBounds.X + outerBounds.Width &&
                     mouseState.Y >= outerBounds.Y && mouseState.Y <= outerBounds.Y + outerBounds.Height;
-        
-        isPressed = isHovered && mouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed;
-
+    
+        bool wasPressed = isPressed;
+        isPressed = isHovered && mouseState.LeftButton == ButtonState.Pressed;
+    
+        if (!wasPressed && isPressed && onClick != null)
+        {
+            onClick.Invoke();
+        }
     }
 }
