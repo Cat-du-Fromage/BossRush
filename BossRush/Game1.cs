@@ -47,7 +47,6 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         // TODO: Add your drawing code here
-        SimpleShapes.Rectangle(new Vector2(50,50),new Vector2(20,150),Color.Red);
 
         base.Draw(gameTime);
     }
