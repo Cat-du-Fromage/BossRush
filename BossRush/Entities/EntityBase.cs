@@ -9,6 +9,10 @@ public abstract class EntityBase : DrawableGameComponent
     public Vector2 Position { get; private set;}
     protected Vector2 Velocity; // subclasses are in complete control of their acceleration
     
+    public Vector2 GetVelocity(){
+        return Velocity;
+    }
+    
     public abstract bool IsAlive();
     
     /**
@@ -34,5 +38,6 @@ public abstract class EntityBase : DrawableGameComponent
         Velocity = velocity;
     }
 
-    public abstract void Hit();
+    public abstract void Hit(EntityBase offender);
 }
+

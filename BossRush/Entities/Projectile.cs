@@ -1,21 +1,22 @@
 using System;
+using System.Timers;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace BossRush.Entities;
 
 public class Projectile : EntityBase
 {
-    private Projectile(Game game, Vector2 pos, Vector2 vel) : base(pos,vel,game){}
-
+    private bool _isAlive = true;
     public override bool IsAlive()
     {
-        throw new NotImplementedException();
+        return _isAlive;
     }
     public float MaxSpeed { get; private set; }
     public float MaxAcceleration{ get; private set; }
     public float Friction { get; private set; }
     public Vector2 TargetPosition{ get; private set; }
+    public int Size { get; private set; }
     
     public EntityBase Owner{ get; private set; }
     public EntityBase TargetEntity{ get; private set; }
@@ -25,16 +26,21 @@ public class Projectile : EntityBase
     public float Stun{ get; private set; }
     
     public Func<Projectile,Vector2> Direct { get;private set; }
-    public Action<Projectile> OnDeath { get;private set; } 
+    public Action<Projectile> OnDeath { get;private set; }
+    
+    public bool DiesOnImpact { get;private set; }
+    
+    private Timer _deathTimer;
 
     public class Builder
     {
         public Game Game { get; private set; }
         public Vector2 Position { get; private set; }
-        public Vector2 Velocity { get; private set; }
+        public Vector2 Velocity { get; private set; } = Vector2.Zero;
         public float MaxSpeed { get; private set; }
+        public int Size { get; private set; } = 15;
         public float MaxAcceleration{ get; private set; }
-        public float Friction { get; private set; }
+        public float Friction { get; private set; } = 1;
         public Vector2 TargetPosition{ get; private set; }
     
         public EntityBase Owner{ get; private set; }
@@ -44,33 +50,36 @@ public class Projectile : EntityBase
         public float Knockback{ get; private set; }
         public float Stun{ get; private set; }
         public Func<Projectile,Vector2> Direct { get;private set; }
-        public Action<Projectile> OnDeath { get;private set; } 
+        public Action<Projectile> OnDeath { get;private set; }
+        public bool DiesOnImpact { get; private set; } = true;
+
+        public TimeSpan LifeSpan { get; private set; } = TimeSpan.FromDays(1);
         
-        public Builder setDirect(Func<Projectile,Vector2> direct)
+        public Builder SetDirect(Func<Projectile,Vector2> direct)
         {
                 Direct =  direct;
                 return this;
         }
 
-        public Builder setDeath(Action<Projectile> death)
+        public Builder SetDeath(Action<Projectile> death)
         {
             OnDeath = death;
             return this;
         }
 
-        public Builder setMaxSpeed(float maxSpeed)
+        public Builder SetMaxSpeed(float maxSpeed)
         {
             MaxSpeed = maxSpeed;
             return this;
         }
 
-        public Builder setMaxAcceleration(float maxAcceleration)
+        public Builder SetMaxAcceleration(float maxAcceleration)
         {
             MaxAcceleration = maxAcceleration;
             return this;
         }
 
-        public Builder setFriction(float friction)
+        public Builder SetFriction(float friction)
         {
             if(friction<0 || friction>1)
                 throw new ArgumentException("Friction must be between 0 and 1");
@@ -78,86 +87,104 @@ public class Projectile : EntityBase
             return this;
         }
 
-        public Builder setStun(float stun)
+        public Builder SetStun(float stun)
         {
             Stun = stun;
             return this;
         }
 
-        public Builder setDamage(float damage)
+        public Builder SetDamage(float damage)
         {
             Damage = damage;
             return this;
         }
 
-        public Builder setKnockback(float knockback)
+        public Builder SetKnockback(float knockback)
         {
             Knockback =  knockback;
             return this;
         }
 
-        public Builder setOwner(EntityBase owner)
+        public Builder SetOwner(EntityBase owner)
         {
             Owner = owner;
             return this;
         }
 
-        public Builder setTarget(EntityBase target)
+        public Builder SetTarget(EntityBase target)
         {
             TargetEntity =  target;
             return this;
         }
 
-        public Builder setTarget(Vector2 target)
+        public Builder SetTarget(Vector2 target)
         {
             TargetPosition =  target;
             return this;
         }
 
-        public Builder setGame(Game game)
+        public Builder SetGame(Game game)
         {
             Game = game;
             return this;
         }
 
-        public Builder setPosition(Vector2 position)
+        public Builder SetPosition(Vector2 position)
         {
             Position = position;
             return this;
         }
 
-        public Builder setVelocity(Vector2 velocity)
+        public Builder SetVelocity(Vector2 velocity)
         {
             Velocity = velocity;
             return this;
         }
 
-        public Projectile build()
+        public Builder SetSize(int size)
+        {
+            Size = size;
+            return this;
+        }
+
+        public Builder SetLifeSpan(TimeSpan lifeSpan)
+        {
+            LifeSpan = lifeSpan;
+            return this;
+        }
+
+        public Builder setDiesOnImpact(bool value)
+        {
+            DiesOnImpact = value;
+            return this;
+        }
+
+        public Projectile Build()
         {
             return new Projectile(this);
         }
     }
 
-    public class Director
+    public static class Director
     {
         public static Builder MakeGuided(Builder builder)
         {
-            builder.setDirect(projectile =>
+            builder.SetDirect(projectile =>
             {
                 // If target is spinning, this projectile might follow it and circle endlessly
                 // To stop this from happening we are going to cancel currentVelocity by a factor representing how close it is to being orthogonal to PT
-                Vector2 PT = projectile.TargetEntity.Position - projectile.Position;
-                PT.Normalize();
+                Vector2 pt = projectile.TargetEntity.Position - projectile.Position;
+                pt.Normalize();
                 
                 Vector2 currentVelocity = projectile.Velocity;
                 if (currentVelocity.LengthSquared() != 0)
                 {
                     currentVelocity.Normalize();
-                    PT -= currentVelocity * (1 - Math.Abs(Vector2.Dot(PT, currentVelocity)));
+                    pt -= currentVelocity * (1 - Math.Abs(Vector2.Dot(pt, currentVelocity)));
                 }
 
-                PT *= projectile.MaxAcceleration;
-                return PT;
+                pt *= projectile.MaxAcceleration;
+                return pt;
             });
             
             return builder;
@@ -175,11 +202,17 @@ public class Projectile : EntityBase
         Damage = builder.Damage;
         Knockback = builder.Knockback;
         Stun = builder.Stun;
+        Size = builder.Size;
+        DiesOnImpact = builder.DiesOnImpact;
         
         OnDeath = builder.OnDeath;
         Direct = builder.Direct;
+        
+        _deathTimer = new Timer(builder.LifeSpan);
+        _deathTimer.Elapsed += (_,_) => Hit(this); 
+        _deathTimer.Start();
 
-        BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), 15));
+        BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size));
     }
 
     public override void Update(GameTime gameTime)
@@ -203,25 +236,25 @@ public class Projectile : EntityBase
             Velocity *= MaxSpeed;
         }
         
-        BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), 12));
+        BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size));
         
         // Hit stuff
         bool hit = false;
-        foreach (var component in Game.Components)
+        for (int i = 0; i < Game.Components.Count; i++) // I know compiler says we can use foreach loop, but we cannot. (Collection modified in the loop)
         {
-            if (component is EntityBase @base)
+            if (Game.Components[i] is EntityBase @base)
             {
-                if(@base == this)
+                if(@base == this || @base == Owner)
                     continue;
                 if (CollidesWith(@base))
                 {
-                    @base.Hit();
+                    @base.Hit(this);
                     hit = true;
                 }
             }
         }
-        if(hit)
-            Hit();
+        if((hit && DiesOnImpact) || TargetEntity != null && !TargetEntity.IsAlive()) // If target entity is dead, stop existing
+            Hit(this);
         
         
         base.Update(gameTime);
@@ -229,13 +262,17 @@ public class Projectile : EntityBase
 
     public override void Draw(GameTime gameTime)
     {
-        SimpleShapes.Circle(Position,15,Color.Red);
+        SimpleShapes.Circle(Position,Size,Color.Red);
         base.Draw(gameTime);
     }
 
-    public override void Hit()
+    public override void Hit(EntityBase offender)
     {
-        //Game.Components.Remove(this);
-        Velocity = Vector2.Zero;
+        if (offender is Projectile projectile && projectile != this && !DiesOnImpact)
+            return;
+        _isAlive = false;
+        Game.Components.Remove(this);
+        if(OnDeath != null)
+            OnDeath(this);
     }
 }
