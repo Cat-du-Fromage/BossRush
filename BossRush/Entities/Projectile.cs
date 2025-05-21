@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Timers;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
 
 namespace BossRush.Entities;
@@ -191,7 +193,7 @@ public class Projectile : EntityBase
         }
     }
 
-    private Projectile(Builder builder) : base(builder.Position,builder.Velocity,builder.Game)
+    private Projectile(Builder builder) : base(builder.Position,builder.Velocity)
     {
         MaxSpeed = builder.MaxSpeed;
         MaxAcceleration = builder.MaxAcceleration;
@@ -215,9 +217,8 @@ public class Projectile : EntityBase
         BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size));
     }
 
-    public override void Update(GameTime gameTime)
+    private void MovementUpdate(GameTime gameTime)
     {
-        // Movement
         Velocity -= (float)gameTime.ElapsedGameTime.TotalSeconds * Friction * Velocity;
         if (Direct != null)
         {
@@ -235,35 +236,34 @@ public class Projectile : EntityBase
             Velocity.Normalize();
             Velocity *= MaxSpeed;
         }
-        
+    }
+
+    private void CollisionUpdate(GameTime gameTime)
+    {
         BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size));
         
         // Hit stuff
         bool hit = false;
-        for (int i = 0; i < Game.Components.Count; i++) // I know compiler says we can use foreach loop, but we cannot. (Collection modified in the loop)
+        List<Projectile> collidingProjectiles = FindAllColliding(ProjectileSystem.Instance.Projectiles);
+        foreach (Projectile projectile in collidingProjectiles)
         {
-            if (Game.Components[i] is EntityBase @base)
-            {
-                if(@base == this || @base == Owner)
-                    continue;
-                if (CollidesWith(@base))
-                {
-                    @base.Hit(this);
-                    hit = true;
-                }
-            }
+            hit = true;
+            projectile.Hit(this);
         }
         if((hit && DiesOnImpact) || TargetEntity != null && !TargetEntity.IsAlive()) // If target entity is dead, stop existing
             Hit(this);
-        
-        
+    }
+
+    public override void Update(GameTime gameTime)
+    {
+        MovementUpdate(gameTime);
+        CollisionUpdate(gameTime);
         base.Update(gameTime);
     }
 
-    public override void Draw(GameTime gameTime)
+    public override void Draw(SpriteBatch spriteBatch)
     {
         SimpleShapes.Circle(Position,Size,Color.Red);
-        base.Draw(gameTime);
     }
 
     public override void Hit(EntityBase offender)
@@ -271,7 +271,7 @@ public class Projectile : EntityBase
         if (offender is Projectile projectile && projectile != this && !DiesOnImpact)
             return;
         _isAlive = false;
-        Game.Components.Remove(this);
+        ProjectileSystem.Remove(this);
         if(OnDeath != null)
             OnDeath(this);
     }
