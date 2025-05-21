@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Timers;
+using BossRush.Enemy;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Color = Microsoft.Xna.Framework.Color;
@@ -36,7 +37,6 @@ public class Projectile : EntityBase
 
     public class Builder
     {
-        public Game Game { get; private set; }
         public Vector2 Position { get; private set; }
         public Vector2 Velocity { get; private set; } = Vector2.Zero;
         public float MaxSpeed { get; private set; }
@@ -56,6 +56,11 @@ public class Projectile : EntityBase
         public bool DiesOnImpact { get; private set; } = true;
 
         public TimeSpan LifeSpan { get; private set; } = TimeSpan.FromDays(1);
+
+        public Builder Clone()
+        {
+            return (Builder)MemberwiseClone();
+        } 
         
         public Builder SetDirect(Func<Projectile,Vector2> direct)
         {
@@ -124,13 +129,6 @@ public class Projectile : EntityBase
             TargetPosition =  target;
             return this;
         }
-
-        public Builder SetGame(Game game)
-        {
-            Game = game;
-            return this;
-        }
-
         public Builder SetPosition(Vector2 position)
         {
             Position = position;
@@ -166,33 +164,6 @@ public class Projectile : EntityBase
             return new Projectile(this);
         }
     }
-
-    public static class Director
-    {
-        public static Builder MakeGuided(Builder builder)
-        {
-            builder.SetDirect(projectile =>
-            {
-                // If target is spinning, this projectile might follow it and circle endlessly
-                // To stop this from happening we are going to cancel currentVelocity by a factor representing how close it is to being orthogonal to PT
-                Vector2 pt = projectile.TargetEntity.Position - projectile.Position;
-                pt.Normalize();
-                
-                Vector2 currentVelocity = projectile.Velocity;
-                if (currentVelocity.LengthSquared() != 0)
-                {
-                    currentVelocity.Normalize();
-                    pt -= currentVelocity * (1 - Math.Abs(Vector2.Dot(pt, currentVelocity)));
-                }
-
-                pt *= projectile.MaxAcceleration;
-                return pt;
-            });
-            
-            return builder;
-        }
-    }
-
     private Projectile(Builder builder) : base(builder.Position,builder.Velocity)
     {
         MaxSpeed = builder.MaxSpeed;
@@ -243,15 +214,20 @@ public class Projectile : EntityBase
         BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size));
         
         // Hit stuff
-        bool hit = false;
         List<Projectile> collidingProjectiles = FindAllColliding(ProjectileSystem.Instance.Projectiles);
         foreach (Projectile projectile in collidingProjectiles)
         {
-            hit = true;
             projectile.Hit(this);
         }
-        if((hit && DiesOnImpact) || TargetEntity != null && !TargetEntity.IsAlive()) // If target entity is dead, stop existing
+        if((collidingProjectiles.Count > 0 && DiesOnImpact) || TargetEntity != null && !TargetEntity.IsAlive()) // If target entity is dead, stop existing
             Hit(this);
+
+        var collidingEnemies = FindAllColliding(EnemySystem.Instance.Enemies);
+        foreach (Enemy.Enemy enemy in collidingEnemies)
+        {
+            if(enemy != Owner)
+                enemy.Hit(this);
+        }
     }
 
     public override void Update(GameTime gameTime)

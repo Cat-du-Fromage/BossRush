@@ -8,13 +8,21 @@ namespace BossRush.Entities;
 
 public class Player : EntityBase
 {
-
-    private class PlayerAbility(IAbility ability, Keys key)
+    private class PlayerAbility(Ability ability, Keys key)
     {
-        public readonly IAbility Ability = ability;
-        public readonly Keys Key = key;
-        public bool WasDown;
-        
+        private Ability ability = ability;
+        private Keys key = key;
+        private bool wasDown;
+        public void Update(Player caster)
+        {
+            if (Keyboard.GetState().IsKeyDown(key) && !wasDown)
+            {
+                wasDown = true;
+                ability.Use(caster,Mouse.GetState().Position);
+            }
+            else if (Keyboard.GetState().IsKeyUp(key) && wasDown)
+                wasDown = false;
+        }
     }
     
     private List<PlayerAbility> _abilities = new List<PlayerAbility>();
@@ -22,26 +30,25 @@ public class Player : EntityBase
     private void UseAbilities()
     {
         foreach (var ability in _abilities)
-        {
-            if (Keyboard.GetState().IsKeyDown(ability.Key) && !ability.WasDown)
-            {
-                ability.WasDown = true;
-                ability.Ability.Use(this,Mouse.GetState().Position);
-            }
-            else if(Keyboard.GetState().IsKeyUp(ability.Key))
-            {
-                ability.WasDown = false;
-            }
-        }
+            ability.Update(this);
     }
     public Player(Vector2 position, Game game) : base(position, Vector2.Zero)
     {
         BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X+32,Position.Y+32,-10)]),0,2);
-        _abilities.Add(new PlayerAbility(new Arrow(),Keys.D1));
-        _abilities.Add(new PlayerAbility(new HomingMagic(),Keys.D2));
-        _abilities.Add(new PlayerAbility(new AchillesArrow(),Keys.D3));
-        _abilities.Add(new PlayerAbility(new Defense(),Keys.D4));
-        _abilities.Add(new PlayerAbility(new ExplosiveMagic(),Keys.D5));
+        
+        _abilities.Add(new PlayerAbility(
+            new BaseAttack().Apply(new Arrow()),Keys.D1));
+        
+        _abilities.Add(new PlayerAbility(new BaseDefense(),Keys.D2));
+        
+        _abilities.Add(new PlayerAbility(
+            new TargetAttack().Apply(new ConservativeHoming()),Keys.D3));
+        
+        _abilities.Add(new PlayerAbility(
+            new DistantMagic()
+                .Apply(new MoveToCaster())
+                .Apply(new DangerZone(TimeSpan.FromSeconds(3))),
+            Keys.D4));
     }
 
     public override void Draw(SpriteBatch spriteBatch)

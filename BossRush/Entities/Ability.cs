@@ -1,228 +1,105 @@
-using System;
+using System.Collections.Generic;
+using BossRush.Enemy;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace BossRush.Entities;
 
-public interface IAbility
+/*
+ Player will have 4 abilities:
+ - baseAttack : shoots something towards a target position (mouse cursor for player)
+ - baseDefense : spawns a (by default) homing projectile with zero speed
+ - targetAttack : chooses the closest target close to position that is not the caster
+ - distantMagic :  creates a projectile at position
+ 
+ Abilities type define how the target is selected, the initial velocity and the initial position
+ Abilities can be given properties that will be applied to the created projectile
+*/
+
+public abstract class Ability 
 {
-    void Use(EntityBase caster, Point target);
+ protected Projectile.Builder Builder;
+
+ protected Ability()
+ {
+  Builder = new Projectile.Builder();
+ }
+
+ public Ability Apply(IProjectileDirector director)
+ {
+  director.Apply(Builder);
+  return this;
+ }
+
+ public virtual void Use(EntityBase caster, Point target)
+ {
+  ProjectileSystem.Add(Builder.Build());
+ }
+
 }
 
-static class Utility
+
+public class BaseAttack : Ability
 {
-    public static EntityBase FindClosest(EntityBase caster, Point target, float range)
-    {
-        //find closest target entity
-        EntityBase closest = null;
-        float closestSquaredDistance = float.MaxValue;
-        foreach (var projectile in ProjectileSystem.Instance.Projectiles)
-        {
-                if(projectile == caster)
-                    continue;
-                Vector2 ct = projectile.Position - target.ToVector2();
-                if (ct.LengthSquared() < closestSquaredDistance)
-                {
-                    closestSquaredDistance = ct.LengthSquared();
-                    closest = projectile;
-                }
-        }
-        
-        // Ensure it is within reasonable distance
-        if (closestSquaredDistance > range * range)
-            return null;
-        
-        return closest;
-    }
+ public override void Use(EntityBase caster, Point target)
+ {
+  Vector2 pt = target.ToVector2() - caster.Position;
+  pt.Normalize();
+  pt *= Builder.MaxSpeed;
 
-    public static Vector2 SetLength(Vector2 vector, float length)
-    {
-        if (vector.LengthSquared() == 0)
-            return vector;
-        vector.Normalize(); 
-        return vector * length;
-    }
-
-    public static Vector2 Projection(Vector2 v, Vector2 n)
-    {
-        return Vector2.Dot(v, n) / n.LengthSquared() * n;
-    }
+  Builder
+   .SetPosition(caster.Position)
+   .SetVelocity(pt)
+   .SetOwner(caster);
+  
+  base.Use(caster, target);
+ }
 }
 
-public class Arrow : IAbility
-{
-    private static readonly Projectile.Builder Builder = new Projectile.Builder();
-    static bool _configured;
-    public void Use(EntityBase caster, Point target)
-    {
-        if (!_configured)
-        {
-            _configured = true;
-            Builder.SetDirect(null)
-                .SetFriction(0.5f)
-                .SetKnockback(1)
-                .SetDamage(10)
-                .SetMaxAcceleration(0)
-                .SetLifeSpan(TimeSpan.FromSeconds(20))
-                .SetMaxSpeed(500)
-                .SetSize(8);
-        }
-        Vector2 pt = target.ToVector2() - caster.Position;
-        pt = Utility.SetLength(pt, Builder.MaxSpeed);
-        ProjectileSystem.Add(
-            Builder.SetOwner(caster)
-            .SetVelocity(pt)
-            .SetPosition(caster.Position)
-            .Build()
-        );
-    }
+public class BaseDefense : Ability
+{ public BaseDefense()
+ {
+  Apply(new Homing());
+  Builder.SetSize(5)
+   .SetVelocity(Vector2.Zero);
+ }
+ public override void Use(EntityBase caster, Point target)
+ {
+  // target the closest projectile from caster
+  EntityBase closest = caster.FindClosestFromPoint(ProjectileSystem.Instance.Projectiles, caster.Position.ToPoint(), 200);
+  if (closest == null)
+   return;
+
+  Builder.SetOwner(caster)
+   .SetTarget(closest)
+   .SetPosition(caster.Position);
+  
+  base.Use(caster, target);
+ }
 }
 
-public class HomingMagic : IAbility
+public class TargetAttack : Ability
 {
-    private static readonly Projectile.Builder Builder = new Projectile.Builder();
-    static bool _configured;
-    public void Use(EntityBase caster, Point target)
-    {
-        if (!_configured)
-        {
-            _configured = true;
-            Projectile.Director.MakeGuided(Builder);
-            Builder.SetDamage(10)
-                .SetFriction(0.0f)
-                .SetMaxAcceleration(150)
-                .SetMaxSpeed(75);
-        }
-        EntityBase closest = Utility.FindClosest(caster, target, 100);
-        if (closest == null)
-            return;
-        
-        ProjectileSystem.Add(
-            Builder.SetOwner(caster)
-                .SetTarget(closest)
-                .SetPosition(caster.Position)
-                .SetVelocity(Vector2.Zero)
-                .Build()
-        );
-
-    }
+ public override void Use(EntityBase caster, Point target)
+ {
+  
+  EntityBase closestProjectile = caster.FindClosestFromPoint(
+   Utility.Merge(ProjectileSystem.Instance.Projectiles,EnemySystem.Instance.Enemies),
+   target,
+   400);
+  
+  base.Use(caster, target);
+ }
 }
 
-public class AchillesArrow : IAbility
-{
-    private static readonly Projectile.Builder Builder = new Projectile.Builder();
-    private static bool _configured;
-    public void Use(EntityBase caster, Point target)
-    {
-        if (!_configured)
-        {
-            _configured = true;
-            Builder.SetFriction(0.4f)
-                .SetKnockback(1)
-                .SetDamage(10)
-                .SetMaxAcceleration(500)
-                .SetMaxSpeed(600)
-                .SetLifeSpan(TimeSpan.FromSeconds(20))
-                .SetSize(10)
-                .SetDirect(projectile =>
-                {
-                    Vector2 v = projectile.GetVelocity();
-                    float scalar = v.Length();
-                    Vector2 at = projectile.TargetEntity.Position - projectile.Position;
-                    Vector2 orthogonal = new Vector2(v.Y, -v.X);
-                    at.Normalize();
-                    return Utility.Projection(at, orthogonal) * scalar;
-                });
-        }
-        
-        EntityBase closest = Utility.FindClosest(caster, target, 400);
-        if (closest == null)
-            return;
-        
-        Vector2 pt = target.ToVector2() - caster.Position;
-        pt = Utility.SetLength(pt, Builder.MaxSpeed);
-        
-        ProjectileSystem.Add(
-            Builder.SetOwner(caster)
-                .SetTarget(closest)
-                .SetPosition(caster.Position)
-                .SetVelocity(pt)
-                .Build()
-        );
-        
-    }
-}
-
-public class Defense : IAbility
-{
-    private static readonly Projectile.Builder Builder = new Projectile.Builder();
-    private static bool _configured;
-
-    public void Use(EntityBase caster, Point target)
-    {
-        if (!_configured)
-        {
-            _configured = true;
-            Builder.SetDamage(10)
-                .SetFriction(0)
-                .SetMaxAcceleration(500)
-                .SetMaxSpeed(400)
-                .SetSize(5)
-                .SetVelocity(Vector2.Zero);
-            Projectile.Director.MakeGuided(Builder);
-        }
-            
-        EntityBase closest = Utility.FindClosest(caster, caster.Position.ToPoint(), 100);
-        if (closest == null)
-            return;
-
-        ProjectileSystem.Add(
-            Builder.SetOwner(caster)
-                .SetTarget(closest)
-                .SetPosition(caster.Position)
-                .Build()
-        );
-    }
-}
-
-public class ExplosiveMagic : IAbility
-{
-    private static readonly Projectile.Builder Builder = new Projectile.Builder();
-    private static bool _configured;
-    public void Use(EntityBase caster, Point target)
-    {
-        if (!_configured)
-        {
-            _configured = true;
-            Projectile.Director.MakeGuided(Builder);
-            Builder.SetDamage(10)
-                .SetFriction(0.0f)
-                .SetMaxAcceleration(500)
-                .SetMaxSpeed(300)
-                .SetDeath(projectile =>
-                {
-                    // The explosion is simply a huge static projectile that isn't destroyed on impact and has a short life
-                    ProjectileSystem.Add(
-                        new Projectile.Builder()
-                            .SetOwner(null)  // explosion will hurt the casters
-                            .SetLifeSpan(TimeSpan.FromSeconds(1))
-                            .setDiesOnImpact(false)
-                            .SetMaxSpeed(0)
-                            .SetVelocity(Vector2.Zero)
-                            .SetPosition(projectile.Position)
-                            .SetSize(50)
-                            .Build()
-                        );
-                });
-        }
-        EntityBase closest = Utility.FindClosest(caster, target, 100);
-        if (closest == null)
-            return;
-
-        Builder.SetOwner(caster)
-            .SetTarget(closest)
-            .SetPosition(caster.Position)
-            .SetVelocity(Vector2.Zero)
-            .Build();
-
-    }
+public class DistantMagic : Ability
+{ 
+ public override void Use(EntityBase caster, Point target)
+ {
+  Builder
+   .SetPosition(target.ToVector2())
+   .SetOwner(caster);
+  
+  base.Use(caster, target);
+ }
 }

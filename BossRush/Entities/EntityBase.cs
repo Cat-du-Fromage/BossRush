@@ -49,6 +49,29 @@ public abstract class EntityBase
         return colliding;
     }
     
+    public T FindClosestFromPoint<T>(IReadOnlyCollection<T> others, Point target, float range) where T : EntityBase
+    {
+        T closest = null;
+        float closestSquaredDistance = float.MaxValue;
+        foreach (T entity in others)
+        {
+            if(entity == this)
+                continue;
+            Vector2 ct = entity.Position - target.ToVector2();
+            if (ct.LengthSquared() < closestSquaredDistance)
+            {
+                closestSquaredDistance = ct.LengthSquared();
+                closest = entity;
+            }
+        }
+        
+        // Ensure it is within reasonable distance
+        if (closestSquaredDistance > range * range)
+            return null;
+        
+        return closest;
+    }
+    
     protected EntityBase(Vector2 position, Vector2 velocity)
     {
         Position = position;
