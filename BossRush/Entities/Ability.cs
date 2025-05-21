@@ -15,19 +15,16 @@ static class Utility
         //find closest target entity
         EntityBase closest = null;
         float closestSquaredDistance = float.MaxValue;
-        foreach (var gameComponent in Game1.Instance.Components)
+        foreach (var projectile in ProjectileSystem.Instance.Projectiles)
         {
-            if (gameComponent is EntityBase @entity)
-            {
-                if(entity == caster)
+                if(projectile == caster)
                     continue;
-                Vector2 ct = @entity.Position - target.ToVector2();
+                Vector2 ct = projectile.Position - target.ToVector2();
                 if (ct.LengthSquared() < closestSquaredDistance)
                 {
                     closestSquaredDistance = ct.LengthSquared();
-                    closest = @entity;
+                    closest = projectile;
                 }
-            }
         }
         
         // Ensure it is within reasonable distance
@@ -67,12 +64,11 @@ public class Arrow : IAbility
                 .SetMaxAcceleration(0)
                 .SetLifeSpan(TimeSpan.FromSeconds(20))
                 .SetMaxSpeed(500)
-                .SetSize(8)
-                .SetGame(Game1.Instance);
+                .SetSize(8);
         }
         Vector2 pt = target.ToVector2() - caster.Position;
         pt = Utility.SetLength(pt, Builder.MaxSpeed);
-        Game1.Instance.Components.Add(
+        ProjectileSystem.Add(
             Builder.SetOwner(caster)
             .SetVelocity(pt)
             .SetPosition(caster.Position)
@@ -94,14 +90,13 @@ public class HomingMagic : IAbility
             Builder.SetDamage(10)
                 .SetFriction(0.0f)
                 .SetMaxAcceleration(150)
-                .SetGame(Game1.Instance)
                 .SetMaxSpeed(75);
         }
         EntityBase closest = Utility.FindClosest(caster, target, 100);
         if (closest == null)
             return;
         
-        Game1.Instance.Components.Add(
+        ProjectileSystem.Add(
             Builder.SetOwner(caster)
                 .SetTarget(closest)
                 .SetPosition(caster.Position)
@@ -128,7 +123,6 @@ public class AchillesArrow : IAbility
                 .SetMaxSpeed(600)
                 .SetLifeSpan(TimeSpan.FromSeconds(20))
                 .SetSize(10)
-                .SetGame(Game1.Instance)
                 .SetDirect(projectile =>
                 {
                     Vector2 v = projectile.GetVelocity();
@@ -147,7 +141,7 @@ public class AchillesArrow : IAbility
         Vector2 pt = target.ToVector2() - caster.Position;
         pt = Utility.SetLength(pt, Builder.MaxSpeed);
         
-        Game1.Instance.Components.Add(
+        ProjectileSystem.Add(
             Builder.SetOwner(caster)
                 .SetTarget(closest)
                 .SetPosition(caster.Position)
@@ -172,7 +166,6 @@ public class Defense : IAbility
                 .SetFriction(0)
                 .SetMaxAcceleration(500)
                 .SetMaxSpeed(400)
-                .SetGame(Game1.Instance)
                 .SetSize(5)
                 .SetVelocity(Vector2.Zero);
             Projectile.Director.MakeGuided(Builder);
@@ -182,7 +175,7 @@ public class Defense : IAbility
         if (closest == null)
             return;
 
-        Builder.Game.Components.Add(
+        ProjectileSystem.Add(
             Builder.SetOwner(caster)
                 .SetTarget(closest)
                 .SetPosition(caster.Position)
@@ -204,15 +197,13 @@ public class ExplosiveMagic : IAbility
             Builder.SetDamage(10)
                 .SetFriction(0.0f)
                 .SetMaxAcceleration(500)
-                .SetGame(Game1.Instance)
                 .SetMaxSpeed(300)
                 .SetDeath(projectile =>
                 {
                     // The explosion is simply a huge static projectile that isn't destroyed on impact and has a short life
-                    Game1.Instance.Components.Add(
+                    ProjectileSystem.Add(
                         new Projectile.Builder()
                             .SetOwner(null)  // explosion will hurt the casters
-                            .SetGame(Game1.Instance)
                             .SetLifeSpan(TimeSpan.FromSeconds(1))
                             .setDiesOnImpact(false)
                             .SetMaxSpeed(0)
@@ -226,14 +217,12 @@ public class ExplosiveMagic : IAbility
         EntityBase closest = Utility.FindClosest(caster, target, 100);
         if (closest == null)
             return;
-        
-        Game1.Instance.Components.Add(
-            Builder.SetOwner(caster)
-                .SetTarget(closest)
-                .SetPosition(caster.Position)
-                .SetVelocity(Vector2.Zero)
-                .Build()
-        );
+
+        Builder.SetOwner(caster)
+            .SetTarget(closest)
+            .SetPosition(caster.Position)
+            .SetVelocity(Vector2.Zero)
+            .Build();
 
     }
 }

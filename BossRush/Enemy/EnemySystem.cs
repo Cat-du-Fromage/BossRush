@@ -45,7 +45,7 @@ public class EnemySystem
         spriteBatch.Begin();
         foreach (Enemy enemy in Enemies)
         {
-            enemy.OnDraw(spriteBatch);
+            enemy.Draw(spriteBatch);
         }
         spriteBatch.End();
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace BossRush.Entities;
@@ -33,7 +34,7 @@ public class Player : EntityBase
             }
         }
     }
-    public Player(Vector2 position, Game game) : base(position, Vector2.Zero, game)
+    public Player(Vector2 position, Game game) : base(position, Vector2.Zero)
     {
         BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X+32,Position.Y+32,-10)]),0,2);
         _abilities.Add(new PlayerAbility(new Arrow(),Keys.D1));
@@ -43,10 +44,9 @@ public class Player : EntityBase
         _abilities.Add(new PlayerAbility(new ExplosiveMagic(),Keys.D5));
     }
 
-    public override void Draw(GameTime gameTime)
+    public override void Draw(SpriteBatch spriteBatch)
     {
         SimpleShapes.Rectangle(Position,30 * Vector2.One,Color.Brown);
-        base.Draw(gameTime);
     }
 
     public override void Update(GameTime gameTime)

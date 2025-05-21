@@ -23,14 +23,12 @@ public class Enemy : EntityBase
 //║                                             ◆◆◆◆◆◆ CONSTRUCTOR ◆◆◆◆◆◆                                              ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 
-    protected Enemy(Vector2 position, Vector2 velocity, Game game) : base(position, velocity, game)
+    protected Enemy(Vector2 position, Vector2 velocity, Game game) : base(position, velocity)
     {
-        Enabled = false;
-        Visible = false;
         texture = game.Content.Load<Texture2D>("triangleRed");
     }
 
-    private Enemy(Game game) : this(Vector2.Zero, Vector2.Zero, game) { }
+    private Enemy(Game game) : this(Vector2.Zero, Vector2.Zero,game) { }
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                           ◆◆◆◆◆◆ MONOGAME EVENTS ◆◆◆◆◆◆                                            ║
@@ -45,7 +43,7 @@ public class Enemy : EntityBase
         Update(gameTime);
     }
 
-    public void OnDraw(SpriteBatch spriteBatch)
+    public override void Draw(SpriteBatch spriteBatch)
     {
         spriteBatch.Draw(texture,
             Position,
@@ -124,5 +122,10 @@ public class Enemy : EntityBase
             }
             return enemy;
         }
+    }
+
+    public override void Hit(EntityBase offender)
+    {
+        throw new NotImplementedException();
     }
 }

@@ -1,9 +1,11 @@
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace BossRush.Entities;
 
-public abstract class EntityBase : DrawableGameComponent
+public abstract class EntityBase
 {
     protected BoundingBox BoundingBox;
     public Vector2 Position { get; private set;}
@@ -20,7 +22,9 @@ public abstract class EntityBase : DrawableGameComponent
      * All subclasses overriding this should only update velocity and let this method handle the position
      * @param gameTime time elapsed since last call to Update
      */
-    public override void Update(GameTime gameTime) => Position += (float)gameTime.ElapsedGameTime.TotalSeconds * Velocity;
+    public virtual void Update(GameTime gameTime) => Position += (float)gameTime.ElapsedGameTime.TotalSeconds * Velocity;
+
+    public abstract void Draw(SpriteBatch spriteBatch);
 
     /**
      * Simply checks the two entities bounding boxes
@@ -29,10 +33,23 @@ public abstract class EntityBase : DrawableGameComponent
      */
     public bool CollidesWith(EntityBase other)
     {
+        if (other == this)
+            return false; // entity doesn't collide with itself
         return BoundingBox.Intersects(other.BoundingBox);
     }
+
+    public List<T> FindAllColliding<T> (IReadOnlyCollection<T> others) where T : EntityBase
+    {
+        List<T> colliding = new List<T>();
+        foreach (var entity in others)
+        { 
+            if (CollidesWith(entity))
+                colliding.Add(entity);
+        }
+        return colliding;
+    }
     
-    protected EntityBase(Vector2 position, Vector2 velocity, Game game):base(game)
+    protected EntityBase(Vector2 position, Vector2 velocity)
     {
         Position = position;
         Velocity = velocity;
