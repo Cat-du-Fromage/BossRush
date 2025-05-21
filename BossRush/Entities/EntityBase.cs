@@ -1,12 +1,17 @@
+using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
 
 namespace BossRush.Entities;
 
 public abstract class EntityBase : DrawableGameComponent
 {
-    private BoundingBox _boundingBox;
+    protected BoundingBox BoundingBox;
     public Vector2 Position { get; private set;}
     protected Vector2 Velocity; // subclasses are in complete control of their acceleration
+    
+    public Vector2 GetVelocity(){
+        return Velocity;
+    }
     
     public abstract bool IsAlive();
     
@@ -24,7 +29,7 @@ public abstract class EntityBase : DrawableGameComponent
      */
     public bool CollidesWith(EntityBase other)
     {
-        return _boundingBox.Intersects(other._boundingBox);
+        return BoundingBox.Intersects(other.BoundingBox);
     }
     
     protected EntityBase(Vector2 position, Vector2 velocity, Game game):base(game)
@@ -32,4 +37,7 @@ public abstract class EntityBase : DrawableGameComponent
         Position = position;
         Velocity = velocity;
     }
+
+    public abstract void Hit(EntityBase offender);
 }
+

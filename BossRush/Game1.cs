@@ -1,4 +1,3 @@
-﻿using BossRush.Enemy;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,14 +11,16 @@ public class Game1 : Game
     private GraphicsDeviceManager graphics;
     private SceneManager sceneManager;
 
-    private EnemySystem enemySystem = new();
-
     public Game1()
     {
         Globals.GameInstance = this;
         graphics = new GraphicsDeviceManager(this);
-        graphics.PreferredBackBufferWidth = 1280;
-        graphics.PreferredBackBufferHeight = 720;
+        
+        int screenWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+        int screenHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+        
+        graphics.PreferredBackBufferWidth = screenWidth;
+        graphics.PreferredBackBufferHeight = screenHeight;
         graphics.ApplyChanges();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -44,9 +45,6 @@ public class Game1 : Game
         sceneManager.Update();
         // TODO: Add your update logic here
         
-        //TODO remplacer target par Le joueur
-        enemySystem.Update(gameTime, Mouse.GetState().Position.ToVector2());
-        
         base.Update(gameTime);
     }
 
@@ -61,16 +59,5 @@ public class Game1 : Game
         Globals.SpriteBatch.End();
 
         base.Draw(gameTime);
-    }
-
-    private void TestBuildEnemies()
-    {
-        for (int i = 0; i < 16; i++)
-        {
-            int y = i / 4;
-            int x = i - y * 4;
-            Vector2 pos = new Vector2(x, y) * 32 + new Vector2(32,32);
-            enemySystem.Register(EnemyDirector.CreateBasicEnemy(pos, this));
-        }
     }
 }

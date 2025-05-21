@@ -82,6 +82,25 @@ public class SimpleShapes
             graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, resolution);
         }
     }
+    
+    private void DrawCircleOutline(Vector2 position, float radius, Color color, int resolution)
+    {
+        VertexPositionColor[] vertices = new VertexPositionColor[resolution + 1];
+        double angleIncrement = 2 * Math.PI / resolution;
+
+        for (int i = 0; i <= resolution; i++)
+        {
+            double angle = (i+1) * angleIncrement;
+            vertices[i].Position = new Vector3(position.X + radius * (float)Math.Cos(angle),position.Y + radius * (float)Math.Sin(angle), 0);
+            vertices[i].Color = color;
+        }
+        
+        foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+        {
+            pass.Apply();
+            graphicsDevice.DrawUserPrimitives(PrimitiveType.LineStrip, vertices, 0, resolution);
+        }
+    }
 
     public static void Rectangle(Vector2 position, Vector2 size, Color color)
     {
@@ -91,6 +110,11 @@ public class SimpleShapes
     public static void Circle(Vector2 position, float radius, Color color, int resolution = 15)
     {
         _instance.DrawCircle(position, radius, color, resolution);
+    }
+
+    public static void CircleOutline(Vector2 position, float radius, Color color, int resolution = 15)
+    {
+        _instance.DrawCircleOutline(position, radius, color, resolution);
     }
     
 }
