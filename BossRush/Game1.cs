@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BossRush.Enemy;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -9,6 +10,8 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
     private BasicEffect _basicEffect;
+
+    private EnemySystem enemySystem = new();
 
     public Game1()
     {
@@ -22,6 +25,7 @@ public class Game1 : Game
         // TODO: Add your initialization logic here
 
         base.Initialize();
+        TestBuildEnemies();
     }
 
     protected override void LoadContent()
@@ -38,16 +42,30 @@ public class Game1 : Game
             Exit();
 
         // TODO: Add your update logic here
-
+        
+        //TODO remplacer target par Le joueur
+        enemySystem.Update(gameTime, Mouse.GetState().Position.ToVector2());
+        
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
-
+        
         // TODO: Add your drawing code here
-
+        enemySystem.Draw(_spriteBatch);
         base.Draw(gameTime);
+    }
+
+    private void TestBuildEnemies()
+    {
+        for (int i = 0; i < 16; i++)
+        {
+            int y = i / 4;
+            int x = i - y * 4;
+            Vector2 pos = new Vector2(x, y) * 32 + new Vector2(32,32);
+            enemySystem.Register(EnemyDirector.CreateBasicEnemy(pos, this));
+        }
     }
 }
