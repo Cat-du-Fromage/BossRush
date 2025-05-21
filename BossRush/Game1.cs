@@ -2,38 +2,38 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+// ReSharper disable All
 
 namespace BossRush;
 
 public class Game1 : Game
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
-    private BasicEffect _basicEffect;
+    private BasicEffect basicEffect;
+    private GraphicsDeviceManager graphics;
+    private SceneManager sceneManager;
 
     private EnemySystem enemySystem = new();
 
     public Game1()
     {
-        _graphics = new GraphicsDeviceManager(this);
+        Globals.GameInstance = this;
+        graphics = new GraphicsDeviceManager(this);
+        graphics.PreferredBackBufferWidth = 1280;
+        graphics.PreferredBackBufferHeight = 720;
+        graphics.ApplyChanges();
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
-
-    protected override void Initialize()
-    {
-        // TODO: Add your initialization logic here
-
-        base.Initialize();
-        TestBuildEnemies();
-    }
-
+    
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
-        new SimpleShapes(GraphicsDevice);
-
-        // TODO: use this.Content to load your game content here
+        Globals.GraphicsDevice = GraphicsDevice;
+        Globals.SpriteBatch = new SpriteBatch(GraphicsDevice);
+        Globals.Content = Content;
+        new SimpleShapes(Globals.GraphicsDevice);
+        Globals.LoadContent();
+        
+        sceneManager = new SceneManager(new GameManager());
     }
 
     protected override void Update(GameTime gameTime)
@@ -41,6 +41,7 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
+        sceneManager.Update();
         // TODO: Add your update logic here
         
         //TODO remplacer target par Le joueur
@@ -52,9 +53,13 @@ public class Game1 : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
+
+        RenderTarget2D frame = sceneManager.GetFrame();
         
-        // TODO: Add your drawing code here
-        enemySystem.Draw(_spriteBatch);
+        Globals.SpriteBatch.Begin();
+        Globals.SpriteBatch.Draw(frame, new Rectangle(0, 0, Globals.ScreenSize.X, Globals.ScreenSize.Y), Color.White);
+        Globals.SpriteBatch.End();
+
         base.Draw(gameTime);
     }
 

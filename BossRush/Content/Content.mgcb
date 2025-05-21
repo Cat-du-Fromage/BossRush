@@ -25,3 +25,6 @@
 /processorParam:TextureFormat=Color
 /build:triangleRed.png
 
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/build:default.spritefont
