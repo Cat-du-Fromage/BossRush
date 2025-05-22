@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,19 +30,19 @@ public class ProjectileSystem
         Instance.Projectiles.Remove(projectile);
     }
 
-    public void Update(GameTime time)
+    public void Update(GameTime gameTime)
     {
-        foreach (var projectile in Projectiles)
+        for (var it = Projectiles.First; it != null; it = it.Next)
         {
-            projectile.Update(time);
+            it.Value.Update(gameTime);
         }
     }
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        foreach (var projectile in Projectiles)
+        for (var it = Projectiles.First; it != null; it = it.Next)
         {
-            projectile.Draw(spriteBatch);
+            it.Value.Draw(spriteBatch);
         }
     }
 }

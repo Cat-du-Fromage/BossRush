@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -7,7 +8,42 @@ using Microsoft.Xna.Framework.Input;
 namespace BossRush.Entities;
 
 public class Player : EntityBase
-{
+{ 
+    
+    static public Player Instance{get; private set;}
+
+    public static void Initialize(Vector2 position)
+    {
+        if (Instance != null)
+            throw new ConstraintException("Only one player instance");
+        
+        Instance = new Player(position);
+    }
+    private Player(Vector2 position) : base(position, Vector2.Zero)
+    {
+        BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X+32,Position.Y+32,-10)]),0,2);
+        
+        _abilities.Add(new PlayerAbility(
+            new BaseAttack().Apply(new Arrow()).Apply(new Explosive()),Keys.D1));
+        
+        _abilities.Add(new PlayerAbility(new BaseDefense(),Keys.D2));
+        
+        _abilities.Add(new PlayerAbility(
+            new TargetAttack().Apply(new Homing()),Keys.D3));
+        
+        _abilities.Add(new PlayerAbility(
+            new DistantMagic()
+                .Apply(new MoveToCaster())
+                .Apply(new DangerZone(TimeSpan.FromSeconds(3))),
+            Keys.D4));
+    }
+
+    public override void Draw(SpriteBatch spriteBatch)
+    {
+        SimpleShapes.Rectangle(Position,30 * Vector2.One,Color.Brown);
+        
+    }
+    
     private class PlayerAbility(Ability ability, Keys key)
     {
         private Ability ability = ability;
@@ -31,29 +67,6 @@ public class Player : EntityBase
     {
         foreach (var ability in _abilities)
             ability.Update(this);
-    }
-    public Player(Vector2 position, Game game) : base(position, Vector2.Zero)
-    {
-        BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X+32,Position.Y+32,-10)]),0,2);
-        
-        _abilities.Add(new PlayerAbility(
-            new BaseAttack().Apply(new Arrow()),Keys.D1));
-        
-        _abilities.Add(new PlayerAbility(new BaseDefense(),Keys.D2));
-        
-        _abilities.Add(new PlayerAbility(
-            new TargetAttack().Apply(new ConservativeHoming()),Keys.D3));
-        
-        _abilities.Add(new PlayerAbility(
-            new DistantMagic()
-                .Apply(new MoveToCaster())
-                .Apply(new DangerZone(TimeSpan.FromSeconds(3))),
-            Keys.D4));
-    }
-
-    public override void Draw(SpriteBatch spriteBatch)
-    {
-        SimpleShapes.Rectangle(Position,30 * Vector2.One,Color.Brown);
     }
 
     public override void Update(GameTime gameTime)

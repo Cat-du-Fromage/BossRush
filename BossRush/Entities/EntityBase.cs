@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -35,18 +37,14 @@ public abstract class EntityBase
     {
         if (other == this)
             return false; // entity doesn't collide with itself
+        if(!(other.IsAlive() && this.IsAlive()))
+            return false; // do not collide with dead entities
         return BoundingBox.Intersects(other.BoundingBox);
     }
 
     public List<T> FindAllColliding<T> (IReadOnlyCollection<T> others) where T : EntityBase
     {
-        List<T> colliding = new List<T>();
-        foreach (var entity in others)
-        { 
-            if (CollidesWith(entity))
-                colliding.Add(entity);
-        }
-        return colliding;
+        return others.Where(entity => CollidesWith(entity)).ToList();
     }
     
     public T FindClosestFromPoint<T>(IReadOnlyCollection<T> others, Point target, float range) where T : EntityBase

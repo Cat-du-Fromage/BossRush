@@ -78,7 +78,7 @@ public class Explosive : IProjectileDirector
                 new Projectile.Builder()
                     .SetOwner(null)  // explosion will hurt the casters
                     .SetLifeSpan(TimeSpan.FromSeconds(1))
-                    .setDiesOnImpact(false)
+                    .SetImpactResistance(int.MaxValue)
                     .SetMaxSpeed(0)
                     .SetVelocity(Vector2.Zero)
                     .SetPosition(projectile.Position)
@@ -94,16 +94,18 @@ public class DangerZone(TimeSpan delay) : IProjectileDirector
 {
     public Projectile.Builder Apply(Projectile.Builder builder)
     {
-        return builder.SetDeath(projectile =>
+        Projectile.Builder copy = builder.Clone();
+        return builder
+            .SetMaxSpeed(0)
+            .SetDeath(projectile =>
             {
                 ProjectileSystem.Add(
-                    builder.Clone()
-                        .SetPosition(projectile.Position)
+                    copy.SetPosition(projectile.Position)
                         .SetOwner(projectile.Owner)
                         .Build());
             })
             .SetLifeSpan(delay)
-            .setDiesOnImpact(false);
+            .SetImpactResistance(int.MaxValue);
     }
 }
 
@@ -116,5 +118,16 @@ public class MoveToCaster : IProjectileDirector
             Vector2 pc = projectile.Owner.Position - projectile.Position;
             return pc;
         });
+    }
+}
+
+public class Straight(float initialSpeed, float drag)
+{
+    public Projectile.Builder Apply(Projectile.Builder builder)
+    {
+        return builder.SetDirect(null)
+            .SetFriction(drag)
+            .SetMaxAcceleration(0)
+            .SetMaxSpeed(initialSpeed);
     }
 }

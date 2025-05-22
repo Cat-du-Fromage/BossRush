@@ -31,17 +31,17 @@ public class Projectile : EntityBase
     public Func<Projectile,Vector2> Direct { get;private set; }
     public Action<Projectile> OnDeath { get;private set; }
     
-    public bool DiesOnImpact { get;private set; }
-    
-    private Timer _deathTimer;
+    public int ImpactResistance { get; private set; }
+
+    private DateTime _deathTime;
 
     public class Builder
     {
-        public Vector2 Position { get; private set; }
+        public Vector2 Position { get; private set; } = Vector2.Zero;
         public Vector2 Velocity { get; private set; } = Vector2.Zero;
-        public float MaxSpeed { get; private set; }
+        public float MaxSpeed { get; private set; } = 1000;
         public int Size { get; private set; } = 15;
-        public float MaxAcceleration{ get; private set; }
+        public float MaxAcceleration { get; private set; } = 100;
         public float Friction { get; private set; } = 1;
         public Vector2 TargetPosition{ get; private set; }
     
@@ -53,7 +53,7 @@ public class Projectile : EntityBase
         public float Stun{ get; private set; }
         public Func<Projectile,Vector2> Direct { get;private set; }
         public Action<Projectile> OnDeath { get;private set; }
-        public bool DiesOnImpact { get; private set; } = true;
+        public int ImpactResistance { get; private set; } = 0;
 
         public TimeSpan LifeSpan { get; private set; } = TimeSpan.FromDays(1);
 
@@ -153,9 +153,13 @@ public class Projectile : EntityBase
             return this;
         }
 
-        public Builder setDiesOnImpact(bool value)
+        public Builder SetImpactResistance(int value)
         {
-            DiesOnImpact = value;
+            if (value < 0)
+            {
+                throw new ArgumentException("Impact resistance must be positive");
+            }
+            ImpactResistance = value;
             return this;
         }
 
@@ -176,14 +180,12 @@ public class Projectile : EntityBase
         Knockback = builder.Knockback;
         Stun = builder.Stun;
         Size = builder.Size;
-        DiesOnImpact = builder.DiesOnImpact;
+        ImpactResistance = builder.ImpactResistance;
         
         OnDeath = builder.OnDeath;
         Direct = builder.Direct;
-        
-        _deathTimer = new Timer(builder.LifeSpan);
-        _deathTimer.Elapsed += (_,_) => Hit(this); 
-        _deathTimer.Start();
+
+        _deathTime = DateTime.Now + builder.LifeSpan;
 
         BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size));
     }
@@ -213,25 +215,38 @@ public class Projectile : EntityBase
     {
         BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size));
         
-        // Hit stuff
+        // Collide with other projectiles
         List<Projectile> collidingProjectiles = FindAllColliding(ProjectileSystem.Instance.Projectiles);
         foreach (Projectile projectile in collidingProjectiles)
         {
             projectile.Hit(this);
         }
-        if((collidingProjectiles.Count > 0 && DiesOnImpact) || TargetEntity != null && !TargetEntity.IsAlive()) // If target entity is dead, stop existing
+        if((collidingProjectiles.Count > 0))
             Hit(this);
+        if(TargetEntity != null && !TargetEntity.IsAlive())
+            Die();
 
+        // Collide with enemies
         var collidingEnemies = FindAllColliding(EnemySystem.Instance.Enemies);
         foreach (Enemy.Enemy enemy in collidingEnemies)
         {
             if(enemy != Owner)
                 enemy.Hit(this);
         }
+        
+        // TODO : Collide with player
+        
     }
 
     public override void Update(GameTime gameTime)
     {
+        if (!IsAlive())
+            return;
+        if (DateTime.Now > _deathTime)
+        {
+            Die();
+        }
+        
         MovementUpdate(gameTime);
         CollisionUpdate(gameTime);
         base.Update(gameTime);
@@ -242,13 +257,23 @@ public class Projectile : EntityBase
         SimpleShapes.Circle(Position,Size,Color.Red);
     }
 
-    public override void Hit(EntityBase offender)
+    private void Die()
     {
-        if (offender is Projectile projectile && projectile != this && !DiesOnImpact)
-            return;
         _isAlive = false;
         ProjectileSystem.Remove(this);
         if(OnDeath != null)
             OnDeath(this);
+    }
+
+    public override void Hit(EntityBase offender)
+    {
+        if (ImpactResistance <= 0)
+        {
+            Die();
+        }
+        else
+        {
+            --ImpactResistance;
+        }
     }
 }

@@ -83,10 +83,20 @@ public class TargetAttack : Ability
  public override void Use(EntityBase caster, Point target)
  {
   
-  EntityBase closestProjectile = caster.FindClosestFromPoint(
+  EntityBase closestEntity = caster.FindClosestFromPoint(
    Utility.Merge(ProjectileSystem.Instance.Projectiles,EnemySystem.Instance.Enemies),
    target,
    400);
+  
+  if (closestEntity == null)
+   return;
+  
+  Builder.SetOwner(caster)
+   .SetVelocity(Vector2.Zero)
+   .SetMaxAcceleration(500)
+   .SetMaxSpeed(400)
+   .SetTarget(closestEntity)
+   .SetPosition(caster.Position);
   
   base.Use(caster, target);
  }
