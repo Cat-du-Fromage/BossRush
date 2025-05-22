@@ -36,16 +36,16 @@ public class Button
         BUTTON.SetData(new[] { Color.White });
     }
   
-    public void Draw()
+    public void Draw(SpriteBatch spriteBatch)
     {
         // Draw the button background
-        Globals.SpriteBatch.Draw(BUTTON, bounds, BACKGROUND_COLOR);
+        spriteBatch.Draw(BUTTON, bounds, BACKGROUND_COLOR);
 
         // Draw the button foreground with the current state color
         Color currentColor = isPressed ? PRESSED_COLOR :
             isHovered ? HOVER_COLOR :
             COLOR;
-        Globals.SpriteBatch.Draw(BUTTON, outerBounds, currentColor);
+        spriteBatch.Draw(BUTTON, outerBounds, currentColor);
 
         // Draw the button text
         Vector2 textSize = Globals.Font.MeasureString(text);
@@ -53,7 +53,7 @@ public class Button
             outerBounds.X + (outerBounds.Width - textSize.X) / 2,
             outerBounds.Y + (outerBounds.Height - textSize.Y) / 2
         );
-        Globals.SpriteBatch.DrawString(Globals.Font, text, textPos, TEXT_COLOR);
+        spriteBatch.DrawString(Globals.Font, text, textPos, TEXT_COLOR);
 
     }
     

@@ -1,29 +1,42 @@
+using System;
+using BossRush.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace BossRush.Scenes;
 
 public class Game(GameManager gm, SceneManager sm) : Scene(gm, sm)
-{
+{ 
+    
     
     protected override void Load()
     {
-        //throw new System.NotImplementedException();
+        
     }
 
-    protected override void Draw()
+    public override void Draw(SpriteBatch spriteBatch)
     {
-        Globals.SpriteBatch.Draw(Globals.WhitePixel, new Rectangle(0, 0, (int)Globals.ScreenSize.X, (int)Globals.ScreenSize.Y), new Color(160, 200, 120));
-        //throw new System.NotImplementedException();
+        spriteBatch.Begin();
+        spriteBatch.Draw(Globals.WhitePixel,
+            new Rectangle(0, 0, Globals.ScreenSize().X, Globals.ScreenSize().Y),
+            new Color(160, 200, 120));
+        spriteBatch.End();
+        spriteBatch.Begin();
+        ProjectileSystem.Instance.Draw(spriteBatch);
+        Player.Instance.Draw(spriteBatch);
+        spriteBatch.End();
     }
 
-    public override void Update()
+    public override void Update(GameTime gameTime)
     {
-        //throw new System.NotImplementedException();
+        ProjectileSystem.Instance.Update(gameTime);
+        Player.Instance.Update(gameTime);
+        
     }
 
     public override void Activate()
     {
-        Load();
+        ProjectileSystem.Initialize();
+        Player.Initialize(new Vector2(Globals.ScreenSize().X/2,Globals.ScreenSize().Y/2));
     }
 }

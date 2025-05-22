@@ -29,9 +29,7 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         Globals.GraphicsDevice = GraphicsDevice;
-        Globals.SpriteBatch = new SpriteBatch(GraphicsDevice);
         Globals.Content = Content;
-        new SimpleShapes(Globals.GraphicsDevice);
         Globals.LoadContent();
         
         sceneManager = new SceneManager(new GameManager());
@@ -42,7 +40,7 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        sceneManager.Update();
+        sceneManager.Update(gameTime);
         // TODO: Add your update logic here
         
         base.Update(gameTime);
@@ -52,11 +50,7 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        RenderTarget2D frame = sceneManager.GetFrame();
-        
-        Globals.SpriteBatch.Begin();
-        Globals.SpriteBatch.Draw(frame, new Rectangle(0, 0, Globals.ScreenSize.X, Globals.ScreenSize.Y), Color.White);
-        Globals.SpriteBatch.End();
+        sceneManager.Draw(new SpriteBatch(GraphicsDevice));
 
         base.Draw(gameTime);
     }

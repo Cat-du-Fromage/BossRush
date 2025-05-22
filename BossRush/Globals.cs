@@ -7,8 +7,10 @@ namespace BossRush;
 
 public static class Globals
 {
-    public static Point ScreenSize { get; } = new(1366, 768);
-    public static SpriteBatch SpriteBatch { get; set; }
+    public static Point ScreenSize()
+    {
+        return new Point(GraphicsDevice.Viewport.Width,GraphicsDevice.Viewport.Height);
+    }
     public static GraphicsDevice GraphicsDevice { get; set; }
     public static ContentManager Content { get; set; }
     
@@ -30,6 +32,6 @@ public static class Globals
 
     public static RenderTarget2D GetNewRenderTarget()
     {
-        return new RenderTarget2D(GraphicsDevice, ScreenSize.X, ScreenSize.Y);
+        return new RenderTarget2D(GraphicsDevice, ScreenSize().X, ScreenSize().Y);
     }
 }

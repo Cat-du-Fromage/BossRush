@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using BossRush.Scenes;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Game = BossRush.Scenes.Game;
 
 namespace BossRush;
 
@@ -19,9 +21,9 @@ public class SceneManager
         scenes[CurrentScene].Activate();
     }
     
-    public void Update()
+    public void Update(GameTime gameTime)
     {
-        scenes[CurrentScene].Update();
+        scenes[CurrentScene].Update(gameTime);
     }
     
     public void SwitchScene()
@@ -30,9 +32,9 @@ public class SceneManager
         scenes[CurrentScene].Activate();
     }
 
-    public RenderTarget2D GetFrame()
+    public void Draw(SpriteBatch spriteBatch)
     {
-        return scenes[CurrentScene].GetFrame();
+        scenes[CurrentScene].Draw(spriteBatch);
     }
     
     public void Exit()

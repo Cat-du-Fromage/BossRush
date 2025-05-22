@@ -14,8 +14,6 @@ public class GameManager
     
     public void Draw()
     {
-        Globals.SpriteBatch.Begin();
-        
-        Globals.SpriteBatch.End();
+     
     }
 }
