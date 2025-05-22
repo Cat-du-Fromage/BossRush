@@ -1,36 +1,24 @@
 using System;
 using System.Data;
+using BossRush;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-public class SimpleShapes
-{
-    private GraphicsDevice graphicsDevice;
-    private BasicEffect basicEffect;
-
-    private static SimpleShapes _instance;
-
-    public SimpleShapes(GraphicsDevice graphicsDevice)
+public static class SimpleShapes
+{ private static BasicEffect getBasicEffect()
     {
-        if (_instance != null)
-            throw new Exception("Only one instance should be created");
-        
-        this.graphicsDevice = graphicsDevice;
-
-        basicEffect = new BasicEffect(graphicsDevice)
+        return new BasicEffect(Globals.GraphicsDevice)
         {
             VertexColorEnabled = true,
             Projection = Matrix.CreateOrthographicOffCenter(
-                0, graphicsDevice.Viewport.Width,
-                graphicsDevice.Viewport.Height, 0,
+                0, Globals.GraphicsDevice.Viewport.Width,
+                Globals.GraphicsDevice.Viewport.Height, 0,
                 0, 1
             )
         };
-        
-        _instance = this;
     }
 
-    private void DrawRectangle(Vector2 position, Vector2 size, Color color)
+    public static void Rectangle(Vector2 position, Vector2 size, Color color)
     {
         VertexPositionColor[] vertices = new VertexPositionColor[6];
 
@@ -49,14 +37,14 @@ public class SimpleShapes
             vertices[i].Color = color;
         }
 
-        foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+        foreach (EffectPass pass in getBasicEffect().CurrentTechnique.Passes)
         {
             pass.Apply();
-            graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, 2);
+            Globals.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, 2);
         }
     }
 
-    private void DrawCircle(Vector2 position, float radius, Color color, int resolution)
+    public static void Circle(Vector2 position, float radius, Color color, int resolution = 15)
     {
         VertexPositionColor[] vertices = new VertexPositionColor[3 * resolution];
         double angleIncrement = 2 * Math.PI / resolution;
@@ -76,14 +64,14 @@ public class SimpleShapes
             vertices[3*i + 2] = new VertexPositionColor(p2, color);
         }
         
-        foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+        foreach (EffectPass pass in getBasicEffect().CurrentTechnique.Passes)
         {
             pass.Apply();
-            graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, resolution);
+            Globals.GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, resolution);
         }
     }
-    
-    private void DrawCircleOutline(Vector2 position, float radius, Color color, int resolution)
+
+    public static void CircleOutline(Vector2 position, float radius, Color color, int resolution = 15)
     {
         VertexPositionColor[] vertices = new VertexPositionColor[resolution + 1];
         double angleIncrement = 2 * Math.PI / resolution;
@@ -95,26 +83,11 @@ public class SimpleShapes
             vertices[i].Color = color;
         }
         
-        foreach (EffectPass pass in basicEffect.CurrentTechnique.Passes)
+        foreach (EffectPass pass in getBasicEffect().CurrentTechnique.Passes)
         {
             pass.Apply();
-            graphicsDevice.DrawUserPrimitives(PrimitiveType.LineStrip, vertices, 0, resolution);
+            Globals.GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineStrip, vertices, 0, resolution);
         }
-    }
-
-    public static void Rectangle(Vector2 position, Vector2 size, Color color)
-    {
-        _instance.DrawRectangle(position, size, color);
-    }
-
-    public static void Circle(Vector2 position, float radius, Color color, int resolution = 15)
-    {
-        _instance.DrawCircle(position, radius, color, resolution);
-    }
-
-    public static void CircleOutline(Vector2 position, float radius, Color color, int resolution = 15)
-    {
-        _instance.DrawCircleOutline(position, radius, color, resolution);
     }
     
 }
