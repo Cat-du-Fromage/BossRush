@@ -1,6 +1,7 @@
 using System;
 using BossRush.Entities;
 using BossRush.Managers;
+using BossRush.Managers;
 using BossRush.Scenes.UIComponents;
 using BossRush.UIComponents;
 using Microsoft.Xna.Framework;
