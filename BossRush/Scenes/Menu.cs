@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace BossRush.Scenes;
 
-public class Menu(GameManager gm, SceneManager sm) : Scene(gm, sm)
+public class Menu(SceneManager sm) : Scene(sm)
 {
 
     private Button startButton;

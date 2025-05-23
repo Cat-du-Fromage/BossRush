@@ -12,6 +12,8 @@ public abstract class EntityBase
     protected BoundingBox BoundingBox;
     public Vector2 Position { get; private set;}
     protected Vector2 Velocity; // subclasses are in complete control of their acceleration
+    public int CurrentHealth { get; set; } = 50; // Todo : Give a reasonable value
+    public int MaxHealth { get; set; } = 100; // Todo : Give a reasonable value
     
     public Vector2 GetVelocity(){
         return Velocity;
