@@ -1,4 +1,5 @@
 using System;
+using BossRush.Enemy;
 using BossRush.Entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,7 +12,7 @@ public class Game(GameManager gm, SceneManager sm) : Scene(gm, sm)
     
     protected override void Load()
     {
-        
+        EnemySystem.Instance.TestBuildEnemies();
     }
 
     public override void Draw(SpriteBatch spriteBatch)
@@ -24,6 +25,7 @@ public class Game(GameManager gm, SceneManager sm) : Scene(gm, sm)
         spriteBatch.Begin();
         ProjectileSystem.Instance.Draw(spriteBatch);
         Player.Instance.Draw(spriteBatch);
+        EnemySystem.Instance.Draw(spriteBatch);
         spriteBatch.End();
     }
 
@@ -31,7 +33,7 @@ public class Game(GameManager gm, SceneManager sm) : Scene(gm, sm)
     {
         ProjectileSystem.Instance.Update(gameTime);
         Player.Instance.Update(gameTime);
-        
+        EnemySystem.Instance.Update(gameTime, Player.Instance.Position);
     }
 
     public override void Activate()
@@ -39,4 +41,6 @@ public class Game(GameManager gm, SceneManager sm) : Scene(gm, sm)
         ProjectileSystem.Initialize();
         Player.Initialize(new Vector2(Globals.ScreenSize().X/2,Globals.ScreenSize().Y/2));
     }
+    
+    
 }

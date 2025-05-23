@@ -44,6 +44,7 @@ public abstract class EntityBase
 
     public List<T> FindAllColliding<T> (IReadOnlyCollection<T> others) where T : EntityBase
     {
+        
         return others.Where(entity => CollidesWith(entity)).ToList();
     }
     
