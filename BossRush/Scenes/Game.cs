@@ -1,5 +1,6 @@
 using System;
 using BossRush.Entities;
+using BossRush.Managers;
 using BossRush.Scenes.UIComponents;
 using BossRush.UIComponents;
 using Microsoft.Xna.Framework;
@@ -16,6 +17,15 @@ public class Game(SceneManager sm) : Scene(sm)
         
     }
 
+    public override void Activate()
+    {
+        ProjectileSystem.Initialize();
+        Player.Initialize(new Vector2(Globals.ScreenSize().X/2,Globals.ScreenSize().Y/2));
+        HealthBar.MaxHealth = Player.Instance.MaxHealth;
+        HealthBar.OldHealth = Player.Instance.CurrentHealth;
+        GameManager.Initialize();
+    }
+    
     public override void Draw(SpriteBatch spriteBatch)
     {
         spriteBatch.Begin();
@@ -29,6 +39,9 @@ public class Game(SceneManager sm) : Scene(sm)
         spriteBatch.End();
         
         HealthBar.Draw(spriteBatch);
+        
+        GameManager.Draw(spriteBatch);
+        
     }
 
     public override void Update(GameTime gameTime)
@@ -36,13 +49,6 @@ public class Game(SceneManager sm) : Scene(sm)
         ProjectileSystem.Instance.Update(gameTime);
         Player.Instance.Update(gameTime);
         HealthBar.Update(Player.Instance.CurrentHealth, Player.Instance.MaxHealth);
-    }
-
-    public override void Activate()
-    {
-        ProjectileSystem.Initialize();
-        Player.Initialize(new Vector2(Globals.ScreenSize().X/2,Globals.ScreenSize().Y/2));
-        HealthBar.MaxHealth = Player.Instance.MaxHealth;
-        HealthBar.OldHealth = Player.Instance.CurrentHealth;
+        GameManager.Update(gameTime);
     }
 }
