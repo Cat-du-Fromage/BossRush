@@ -9,6 +9,8 @@ namespace BossRush.Scenes;
 
 public class Game(SceneManager sm) : Scene(sm)
 { 
+    
+    private readonly Color BACKGROUND_COLOR = new (160, 200, 120);
     protected override void Load()
     {
         
@@ -19,7 +21,7 @@ public class Game(SceneManager sm) : Scene(sm)
         spriteBatch.Begin();
         spriteBatch.Draw(Globals.WhitePixel,
             new Rectangle(0, 0, Globals.ScreenSize().X, Globals.ScreenSize().Y),
-            new Color(160, 200, 120));
+            BACKGROUND_COLOR);
         spriteBatch.End();
         spriteBatch.Begin();
         ProjectileSystem.Instance.Draw(spriteBatch);
@@ -33,7 +35,7 @@ public class Game(SceneManager sm) : Scene(sm)
     {
         ProjectileSystem.Instance.Update(gameTime);
         Player.Instance.Update(gameTime);
-        HealthBar.Update(Player.Instance.CurrentHealth);
+        HealthBar.Update(Player.Instance.CurrentHealth, Player.Instance.MaxHealth);
     }
 
     public override void Activate()

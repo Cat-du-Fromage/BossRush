@@ -10,8 +10,9 @@ public static class HealthBar
     private static int Width => (int)(Globals.ScreenSize().X * 0.2f);
     private static int Height => (int)(Globals.ScreenSize().Y * 0.05f);
 
-    public static void Update(int newHealth)
+    public static void Update(int newHealth, int newMaxHealth)
     {
+        MaxHealth = newMaxHealth;
         OldHealth = newHealth;
     }
 
