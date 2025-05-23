@@ -12,10 +12,10 @@ public class SceneManager
     private Scenes.Scenes CurrentScene { get; set; }
     private readonly Dictionary<Scenes.Scenes, Scene> scenes = [];
 
-    public SceneManager(GameManager gm)
+    public SceneManager()
     {
-        scenes.Add(Scenes.Scenes.Menu, new Menu(gm, this));
-        scenes.Add(Scenes.Scenes.Game, new Game(gm, this));
+        scenes.Add(Scenes.Scenes.Menu, new Menu(this));
+        scenes.Add(Scenes.Scenes.Game, new Game(this));
         
         CurrentScene = Scenes.Scenes.Menu;
         scenes[CurrentScene].Activate();

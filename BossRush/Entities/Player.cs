@@ -10,7 +10,7 @@ namespace BossRush.Entities;
 public class Player : EntityBase
 { 
     
-    static public Player Instance{get; private set;}
+    public static Player Instance{get; private set;}
 
     public static void Initialize(Vector2 position)
     {
