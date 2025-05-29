@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Net.Mime;
 using BossRush.Scenes;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -20,18 +23,49 @@ public static class Globals
 
     public static Texture2D WhitePixel { get; private set; }
 
+    public static Dictionary<string, List<Texture2D>> ParticleTextures { get; private set; }
     
     public static void LoadContent()
     {
         Font = Content.Load<SpriteFont>("default");
         
         WhitePixel = new Texture2D(GraphicsDevice, 1, 1);
-        WhitePixel.SetData(new[] { Microsoft.Xna.Framework.Color.White });
-
+        WhitePixel.SetData([Microsoft.Xna.Framework.Color.White]);
+        
+        LoadParticleTextures();
     }
 
     public static RenderTarget2D GetNewRenderTarget()
     {
         return new RenderTarget2D(GraphicsDevice, ScreenSize().X, ScreenSize().Y);
+    }
+    
+    private static void LoadParticleTextures() 
+    {
+        ParticleTextures = new Dictionary<string, List<Texture2D>>();
+        
+        const string PARTICLE_PATH = "Particles";
+
+        DirectoryInfo dir = new DirectoryInfo(Content.RootDirectory + "/" + PARTICLE_PATH);
+        if (!dir.Exists)
+            throw new DirectoryNotFoundException("Particle folder not found: " + dir.FullName);
+
+        // Loop through each file
+        foreach (FileInfo file in dir.GetFiles("*.png"))
+        {
+            string fileName = Path.GetFileNameWithoutExtension(file.Name);
+            
+            // Extract the base name (e.g., "muzzle_01" → "muzzle")
+            string key = fileName.Split('_')[0]; // Split by underscore and take the first part
+
+            // Load the texture
+            Texture2D texture = Content.Load<Texture2D>($"{PARTICLE_PATH}/{fileName}");
+
+            // Add to dictionary
+            if (!ParticleTextures.ContainsKey(key))
+                ParticleTextures[key] = new List<Texture2D>();
+
+            ParticleTextures[key].Add(texture);
+        }
     }
 }
