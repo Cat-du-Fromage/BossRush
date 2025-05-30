@@ -7,6 +7,7 @@ namespace BossRush.Particles;
 
 public class ParticlePresets(ParticleEmitter particleEmitter)
 {
+    private const float MAX_SIZE = 0.08f;
     public void CreateMuzzleFlash(Vector2 position, Vector2 direction)
     {
         particleEmitter.CreateParticle(
@@ -14,7 +15,7 @@ public class ParticlePresets(ParticleEmitter particleEmitter)
             position: position,
             velocity: direction * 0.5f,
             color: Color.Orange,
-            size: 1.5f,
+            size: MAX_SIZE,
             lifeTime: 0.1f
         );
     }
