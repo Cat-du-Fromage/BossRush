@@ -19,7 +19,6 @@ public class ParticleEmitter
         particle.Color = color;
         particle.Size = size;
         particle.Rotation = rotation;
-        particle.LifeTime = lifeTime;
         particle.CurrentLife = lifeTime;
         
         particles.Add(particle);

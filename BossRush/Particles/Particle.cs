@@ -11,7 +11,6 @@ public class Particle
     public Color Color;
     public float Size;
     public float Rotation;
-    public float LifeTime;
     public float CurrentLife;
 
     public bool IsActive => CurrentLife > 0;
