@@ -31,7 +31,8 @@ public class Player : EntityBase
             new BaseAttack()
                 .Apply(new Arrow())
                 .Apply(new Explosive())
-                .Apply(new FireEffect(ParticleSystem.Instance.Presets.CreateMuzzleFlash)),Keys.D1));
+                .Apply(new FireEffect(ParticleSystem.Instance.Presets.CreateMuzzleFlash))
+                .Apply(new TrailEffect(ParticleSystem.Instance.Presets.CreateSplash)),Keys.D1));
         
         _abilities.Add(new PlayerAbility(new BaseDefense(),Keys.D2));
         

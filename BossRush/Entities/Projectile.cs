@@ -244,6 +244,8 @@ public class Projectile : EntityBase
             if(enemy != Owner)
                 enemy.Hit(this);
         }
+        if(collidingEnemies.Count > 0)
+            Hit(this);
         
         // TODO : Collide with player
         
