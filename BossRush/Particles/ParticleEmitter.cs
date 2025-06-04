@@ -9,7 +9,7 @@ public class ParticleEmitter
     private readonly List<Particle> particles = [];
     private readonly Stack<Particle> particlePool = [];
 
-    public void CreateParticle(Texture2D texture, Vector2 position, Vector2 velocity, Color color, float size,
+    public Particle CreateParticle(Texture2D texture, Vector2 position, Vector2 velocity, Color color, float size,
         float lifeTime, float rotation = 0f)
     {
         Particle particle = particlePool.Count > 0 ? particlePool.Pop() : new Particle();
@@ -20,8 +20,10 @@ public class ParticleEmitter
         particle.Size = size;
         particle.Rotation = rotation;
         particle.CurrentLife = lifeTime;
+        particle.LifeTime = lifeTime; 
         
         particles.Add(particle);
+        return particle;
     }
     
     public void Update(GameTime gt)
