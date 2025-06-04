@@ -120,14 +120,3 @@ public class MoveToCaster : IProjectileDirector
         });
     }
 }
-
-public class Straight(float initialSpeed, float drag)
-{
-    public Projectile.Builder Apply(Projectile.Builder builder)
-    {
-        return builder.SetDirect(null)
-            .SetFriction(drag)
-            .SetMaxAcceleration(0)
-            .SetMaxSpeed(initialSpeed);
-    }
-}

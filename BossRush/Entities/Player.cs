@@ -11,6 +11,7 @@ public class Player : EntityBase
 { 
     
     public static Player Instance{get; private set;}
+    public float Damage { get; private set; }
 
     public static void Initialize(Vector2 position)
     {
@@ -22,6 +23,8 @@ public class Player : EntityBase
     private Player(Vector2 position) : base(position, Vector2.Zero)
     {
         BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X+32,Position.Y+32,-10)]),0,2);
+        
+        Damage = 10;
         
         _abilities.Add(new PlayerAbility(
             new BaseAttack().Apply(new Arrow()).Apply(new Explosive()),Keys.D1));
@@ -54,7 +57,7 @@ public class Player : EntityBase
             if (Keyboard.GetState().IsKeyDown(key) && !wasDown)
             {
                 wasDown = true;
-                ability.Use(caster,Mouse.GetState().Position);
+                ability.Use(caster,Mouse.GetState().Position,caster.Damage);
             }
             else if (Keyboard.GetState().IsKeyUp(key) && wasDown)
                 wasDown = false;
