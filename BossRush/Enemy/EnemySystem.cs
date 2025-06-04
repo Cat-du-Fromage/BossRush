@@ -97,7 +97,7 @@ public class EnemySystem
         {
             int y = i / maxHeight;
             int x = i - (y * maxHeight);
-            positions[i] = new Vector2(startX + x * 16, startY + y * 16);
+            positions[i] = new Vector2(startX + y * 16, startY + x * 16);
         }
         return positions;
     }
