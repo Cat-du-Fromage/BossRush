@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using BossRush.Particles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -27,7 +28,10 @@ public class Player : EntityBase
         Damage = 10;
         
         _abilities.Add(new PlayerAbility(
-            new BaseAttack().Apply(new Arrow()).Apply(new Explosive()),Keys.D1));
+            new BaseAttack()
+                .Apply(new Arrow())
+                .Apply(new Explosive())
+                .Apply(new FireEffect(ParticleSystem.Instance.Presets.CreateMuzzleFlash)),Keys.D1));
         
         _abilities.Add(new PlayerAbility(new BaseDefense(),Keys.D2));
         

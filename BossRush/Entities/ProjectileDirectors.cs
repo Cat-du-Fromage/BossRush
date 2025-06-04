@@ -120,3 +120,50 @@ public class MoveToCaster : IProjectileDirector
         });
     }
 }
+
+
+public abstract class ParticleEffect : IProjectileDirector
+{
+    protected ParticleEffect(Action<Vector2, Vector2> creatParticle)
+    {
+        CreateParticle = creatParticle;
+    }
+    protected Action<Vector2, Vector2> CreateParticle;
+    
+    public abstract Projectile.Builder Apply(Projectile.Builder builder);
+}
+public class TrailEffect : ParticleEffect
+{
+    public TrailEffect(Action<Vector2, Vector2> creatParticle) : base(creatParticle) {}
+    public override Projectile.Builder Apply(Projectile.Builder builder)
+    {
+        return builder.SetOnUpdate((projectile =>
+        {
+            CreateParticle.Invoke(projectile.Position, projectile.GetVelocity());
+        }));
+    }
+}
+
+public class FireEffect : ParticleEffect
+{
+    public FireEffect(Action<Vector2, Vector2> creatParticle) : base(creatParticle) {}
+    public override Projectile.Builder Apply(Projectile.Builder builder)
+    {
+        return builder.SetOnFire(projectile =>
+        {
+            CreateParticle.Invoke(projectile.Position, Vector2.Zero);
+        });
+    }
+}
+
+public class HitEffect : ParticleEffect
+{ 
+    public HitEffect(Action<Vector2, Vector2> creatParticle) : base(creatParticle) {}
+    public override Projectile.Builder Apply(Projectile.Builder builder)
+    {
+        return builder.SetOnHit((projectile =>
+        {
+            CreateParticle.Invoke(projectile.Position, projectile.GetVelocity());
+        }));
+    }
+}

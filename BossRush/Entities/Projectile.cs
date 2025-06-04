@@ -25,11 +25,12 @@ public class Projectile : EntityBase
     public EntityBase TargetEntity{ get; private set; }
 
     public float Damage{ get; private set; }
-    public float Knockback{ get; private set; }
-    public float Stun{ get; private set; }
     
     public Func<Projectile,Vector2> Direct { get;private set; }
     public Action<Projectile> OnDeath { get;private set; }
+    public Action<Projectile> OnHit{ get;private set; }
+    public Action<Projectile> OnUpdate{ get;private set; }
+    public Action<Projectile> OnFire{ get;private set; }
     
     public int ImpactResistance { get; private set; }
 
@@ -49,10 +50,11 @@ public class Projectile : EntityBase
         public EntityBase TargetEntity{ get; private set; }
 
         public float Damage{ get; private set; }
-        public float Knockback{ get; private set; }
-        public float Stun{ get; private set; }
         public Func<Projectile,Vector2> Direct { get;private set; }
         public Action<Projectile> OnDeath { get;private set; }
+        public Action<Projectile> OnHit{ get;private set; }
+        public Action<Projectile> OnUpdate{ get;private set; }
+        public Action<Projectile> OnFire{ get;private set; }
         public int ImpactResistance { get; private set; } = 0;
 
         public TimeSpan LifeSpan { get; private set; } = TimeSpan.FromDays(1);
@@ -71,6 +73,24 @@ public class Projectile : EntityBase
         public Builder SetDeath(Action<Projectile> death)
         {
             OnDeath = death;
+            return this;
+        }
+        
+        public Builder SetOnUpdate(Action<Projectile> update)
+        {
+            OnUpdate = update;
+            return this;
+        }
+        
+        public Builder SetOnHit(Action<Projectile> onHit)
+        {
+            OnHit = onHit;
+            return this;
+        }
+        
+        public Builder SetOnFire(Action<Projectile> onFire)
+        {
+            OnFire = onFire;
             return this;
         }
 
@@ -94,21 +114,9 @@ public class Projectile : EntityBase
             return this;
         }
 
-        public Builder SetStun(float stun)
-        {
-            Stun = stun;
-            return this;
-        }
-
         public Builder SetDamage(float damage)
         {
             Damage = damage;
-            return this;
-        }
-
-        public Builder SetKnockback(float knockback)
-        {
-            Knockback =  knockback;
             return this;
         }
 
@@ -177,17 +185,20 @@ public class Projectile : EntityBase
         Owner = builder.Owner;
         TargetEntity = builder.TargetEntity;
         Damage = builder.Damage;
-        Knockback = builder.Knockback;
-        Stun = builder.Stun;
         Size = builder.Size;
         ImpactResistance = builder.ImpactResistance;
         
         OnDeath = builder.OnDeath;
+        OnHit = builder.OnHit;
+        OnUpdate = builder.OnUpdate;
+        OnFire = builder.OnFire;
         Direct = builder.Direct;
 
         _deathTime = DateTime.Now + builder.LifeSpan;
 
         BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size));
+        
+        OnFire?.Invoke(this);
     }
 
     private void MovementUpdate(GameTime gameTime)
@@ -242,10 +253,13 @@ public class Projectile : EntityBase
     {
         if (!IsAlive())
             return;
+        
         if (DateTime.Now > _deathTime)
         {
             Die();
         }
+        
+        OnUpdate?.Invoke(this);
         
         MovementUpdate(gameTime);
         CollisionUpdate(gameTime);
@@ -261,12 +275,12 @@ public class Projectile : EntityBase
     {
         _isAlive = false;
         ProjectileSystem.Remove(this);
-        if(OnDeath != null)
-            OnDeath(this);
+        OnDeath?.Invoke(this);
     }
 
     public override void Hit(EntityBase offender)
     {
+        OnHit?.Invoke(this);
         if (ImpactResistance <= 0)
         {
             Die();
