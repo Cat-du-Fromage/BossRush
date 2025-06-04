@@ -9,7 +9,7 @@ public class AttackCooldown
     public AttackCooldown(float cooldown)
     {
         Cooldown = cooldown;
-        CurrentCooldown = 0;
+        CurrentCooldown = -1;
     }
 
     public void SetCooldown()

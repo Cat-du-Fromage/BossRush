@@ -19,10 +19,10 @@ public class Enemy : EntityBase
     public float MoveSpeed { get; private set; }
     public int Damage { get; private set; }
     public AttackCooldown AttackCooldown { get; private set; }
+    public Ability Ability { get; private set; }
     
     public float Range { get; private set; }
-
-    //public bool IsMelee => Range < 10;
+    
     public override bool IsAlive() => CurrentHealth > 0;
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -46,21 +46,15 @@ public class Enemy : EntityBase
         direction.Normalize();
         // Si a porté => tirer
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-        if (Vector2.Distance(Position, playerPosition) <= (IsMelee ? Size + 32 : Range))
+        if (AttackCooldown.CanAttack() && Vector2.Distance(Position, playerPosition) <= (IsMelee ? Size + 32 : Range))
         {
-            if (AttackCooldown.CanAttack())
-            {
-                AttackCooldown.SetCooldown();
-                Attack(direction);
-            }
-            else
-            {
-                AttackCooldown.Update(deltaTime);
-            }
+            Attack(direction);
+            AttackCooldown.SetCooldown();
         }
         else // Sinon => Avancer
         {
             Move(direction);
+            AttackCooldown.Update(deltaTime);
         }
         Update(gameTime);
         BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), 16));
@@ -88,8 +82,15 @@ public class Enemy : EntityBase
 
     public void Move(Vector2 directionToPlayer)
     {
-        //1) prendre la Position du joueur
-        Velocity = directionToPlayer * MoveSpeed;
+        float maxDistance = IsMelee ? 0 : 100;
+        if (Vector2.Distance(Player.Instance.Position, Position) <= maxDistance)
+        {
+            Velocity = Vector2.Zero;
+        }
+        else
+        {
+            Velocity = directionToPlayer * MoveSpeed;
+        }
     }
 
     public void Attack(Vector2 directionToPlayer)
@@ -102,14 +103,14 @@ public class Enemy : EntityBase
         }
         else
         {
-            
+            Ability.Use(this, Player.Instance.Position.ToPoint(), Damage);
         }
     }
     
     public override void Hit(EntityBase offender)
     {
         if (offender is not Projectile projectile) return;
-        CurrentHealth -= 10; //projectile.Damage;
+        CurrentHealth -= (int)projectile.Damage; //projectile.Damage;
     }
 
 //-====================================================================================================================-
@@ -170,6 +171,13 @@ public class Enemy : EntityBase
         public Builder WithAttackCooldown(float cooldown)
         {
             enemy.AttackCooldown = new AttackCooldown(cooldown);
+            return this;
+        }
+        
+        //TODO ADD CHECK IF RANGE
+        public Builder WithAbility(Ability ability)
+        {
+            enemy.Ability = ability;
             return this;
         }
 

@@ -128,5 +128,9 @@ public class Player : EntityBase
         {
             CurrentHealth -= enemy.Damage;
         }
+        else if (offender is Projectile projectile)
+        {
+            CurrentHealth -= (int)projectile.Damage;
+        }
     }
 }

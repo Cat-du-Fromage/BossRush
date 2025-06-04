@@ -41,11 +41,12 @@ public static class EnemyDirector
             .WithName("BasicRangeEnemy")
             .IsMelee(false)
             .WithSize(16)
-            .WithDamage(1 * multiplicator.Damage)
+            .WithDamage(8 * multiplicator.Damage)
             .WithHealth(10 * multiplicator.Health)
             .WithMoveSpeed(40f * multiplicator.Speed)
-            .WithRange(10 * multiplicator.Range)
+            .WithRange(650 * multiplicator.Range)
             .WithAttackCooldown(8)
+            .WithAbility(new BaseAttack().Apply(new Arrow()))
             .Build();
     }
     
@@ -55,11 +56,12 @@ public static class EnemyDirector
             .WithName("BasicBossEnemy")
             .IsMelee(false)
             .WithSize(32)
-            .WithDamage(1 * multiplicator.Damage)
+            .WithDamage(16 * multiplicator.Damage)
             .WithHealth(100 * multiplicator.Level * multiplicator.Health)
             .WithMoveSpeed(50f * multiplicator.Speed)
-            .WithRange(10 * multiplicator.Range)
+            .WithRange(500 * multiplicator.Range)
             .WithAttackCooldown(5)
+            .WithAbility(new BaseAttack().Apply(new Arrow()))
             .Build();
     }
     
