@@ -121,5 +121,9 @@ public class Player : EntityBase
     public override void Hit(EntityBase offender)
     {
         Console.Out.WriteLine("You got hit");
+        if (offender is Enemy.Enemy enemy)
+        {
+            CurrentHealth -= enemy.Damage;
+        }
     }
 }

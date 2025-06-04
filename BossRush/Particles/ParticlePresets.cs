@@ -19,4 +19,16 @@ public class ParticlePresets(ParticleEmitter particleEmitter)
             lifeTime: 0.1f
         );
     }
+    
+    public void CreateSlashEffect(Vector2 position, Vector2 direction)
+    {
+        particleEmitter.CreateParticle(
+            texture: Globals.ParticleTextures["slash"][0],
+            position: position,
+            velocity: direction * 0.5f,
+            color: Color.Orange,
+            size: MAX_SIZE,
+            lifeTime: 0.1f
+        );
+    }
 }

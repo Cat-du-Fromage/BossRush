@@ -10,6 +10,7 @@ public struct StatsMultiplicator
     public float Speed => 1 + (Level - 1) * 0.02f;
     public int Defense => (int)(Math.Log10(Level + 9));
     public float Range => 1 + ((Level - 1) * 1.03f);
+    public float AttackCooldown => (float)Math.Pow(0.98f, Level - 1);
 
     public StatsMultiplicator(int level)
     {

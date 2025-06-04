@@ -25,10 +25,13 @@ public static class EnemyDirector
     {
         return new Enemy.Builder(position, Vector2.Zero)
             .WithName("BasicMeleeEnemy")
+            .IsMelee(true)
             .WithSize(16)
+            .WithDamage(1 * multiplicator.Damage)
             .WithHealth(10 * multiplicator.Health)
             .WithMoveSpeed(40f * multiplicator.Speed)
             .WithRange(0)
+            .WithAttackCooldown(4)
             .Build();
     }
     
@@ -36,10 +39,13 @@ public static class EnemyDirector
     {
         return new Enemy.Builder(position, Vector2.Zero)
             .WithName("BasicRangeEnemy")
+            .IsMelee(false)
             .WithSize(16)
+            .WithDamage(1 * multiplicator.Damage)
             .WithHealth(10 * multiplicator.Health)
             .WithMoveSpeed(40f * multiplicator.Speed)
             .WithRange(10 * multiplicator.Range)
+            .WithAttackCooldown(8)
             .Build();
     }
     
@@ -47,10 +53,13 @@ public static class EnemyDirector
     {
         return new Enemy.Builder(position, Vector2.Zero)
             .WithName("BasicBossEnemy")
+            .IsMelee(false)
             .WithSize(32)
+            .WithDamage(1 * multiplicator.Damage)
             .WithHealth(100 * multiplicator.Level * multiplicator.Health)
             .WithMoveSpeed(50f * multiplicator.Speed)
             .WithRange(10 * multiplicator.Range)
+            .WithAttackCooldown(5)
             .Build();
     }
     

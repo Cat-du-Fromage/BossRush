@@ -1,5 +1,6 @@
 ﻿using System;
 using BossRush.Entities;
+using BossRush.Particles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -11,13 +12,17 @@ public class Enemy : EntityBase
     
     public string Name { get; private set; }
     public float Size { get; private set; }
+    
+    public bool IsMelee { get; private set; }
     public int BaseHealth { get; private set; }
     public int CurrentHealth { get; private set; }
     public float MoveSpeed { get; private set; }
+    public int Damage { get; private set; }
+    public AttackCooldown AttackCooldown { get; private set; }
     
     public float Range { get; private set; }
 
-    public bool IsMelee => Range < 10;
+    //public bool IsMelee => Range < 10;
     public override bool IsAlive() => CurrentHealth > 0;
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -40,9 +45,18 @@ public class Enemy : EntityBase
         Vector2 direction = (playerPosition - Position);
         direction.Normalize();
         // Si a porté => tirer
-        if (Vector2.Distance(Position, playerPosition) <= Range)
+        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if (Vector2.Distance(Position, playerPosition) <= (IsMelee ? Size + 32 : Range))
         {
-            Attack(direction);
+            if (AttackCooldown.CanAttack())
+            {
+                AttackCooldown.SetCooldown();
+                Attack(direction);
+            }
+            else
+            {
+                AttackCooldown.Update(deltaTime);
+            }
         }
         else // Sinon => Avancer
         {
@@ -80,9 +94,16 @@ public class Enemy : EntityBase
 
     public void Attack(Vector2 directionToPlayer)
     {
-        Velocity = Vector2.Zero;
-        //1) prendre la direction
-        //2) créer un projectile
+        if (IsMelee)
+        {
+            Vector2 midPosition = (Player.Instance.Position + Position) / 2;
+            ParticleSystem.Instance.Presets.CreateSlashEffect(midPosition, directionToPlayer);
+            Player.Instance.Hit(this);
+        }
+        else
+        {
+            
+        }
     }
     
     public override void Hit(EntityBase offender)
@@ -114,6 +135,18 @@ public class Enemy : EntityBase
             return this;
         }
         
+        public Builder WithDamage(int damage)
+        {
+            enemy.Damage = damage;
+            return this;
+        }
+        
+        public Builder IsMelee(bool state)
+        {
+            enemy.IsMelee = state;
+            return this;
+        }
+        
         public Builder WithHealth(int health)
         {
             enemy.BaseHealth = health;
@@ -133,6 +166,13 @@ public class Enemy : EntityBase
             enemy.Range = range;
             return this;
         }
+        
+        public Builder WithAttackCooldown(float cooldown)
+        {
+            enemy.AttackCooldown = new AttackCooldown(cooldown);
+            return this;
+        }
+
 
         public Enemy Build()
         {
