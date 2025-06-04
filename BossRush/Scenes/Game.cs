@@ -16,7 +16,7 @@ public class Game(SceneManager sm) : Scene(sm)
     private readonly Color BACKGROUND_COLOR = new (160, 200, 120);
     protected override void Load()
     {
-        EnemySystem.Instance.TestBuildEnemies();
+        //EnemySystem.Instance.TestBuildEnemies();
     }
 
     public override void Activate()

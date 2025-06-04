@@ -9,9 +9,9 @@ public struct StatsMultiplicator
     public readonly int Level;
     public int Health  => (int)Math.Pow(1.15, Level - 1);
     public int Damage  => (int)((1 + (Level - 1)) * 0.08);
-    public float Speed => (1 + (Level - 1)) * 0.02f;
+    public float Speed => (1 + (Level - 1)) * 1.02f;
     public int Defense => (int)(Math.Log10(Level + 9));
-    public float Range => (1 + (Level - 1) * 0.03f);
+    public float Range => (1 + (Level - 1) * 1.03f);
 
     public StatsMultiplicator(int level)
     {
@@ -43,7 +43,7 @@ public static class EnemyDirector
             .WithName("BasicMeleeEnemy")
             .WithSize(16)
             .WithHealth(10 * multiplicator.Health)
-            .WithMoveSpeed(15f * multiplicator.Speed)
+            .WithMoveSpeed(40f * multiplicator.Speed)
             .WithRange(0)
             .Build();
     }
@@ -54,7 +54,7 @@ public static class EnemyDirector
             .WithName("BasicRangeEnemy")
             .WithSize(16)
             .WithHealth(10 * multiplicator.Health)
-            .WithMoveSpeed(10f * multiplicator.Speed)
+            .WithMoveSpeed(40f * multiplicator.Speed)
             .WithRange(10 * multiplicator.Range)
             .Build();
     }
@@ -65,7 +65,7 @@ public static class EnemyDirector
             .WithName("BasicBossEnemy")
             .WithSize(32)
             .WithHealth(100 * multiplicator.Level * multiplicator.Health)
-            .WithMoveSpeed(12f * multiplicator.Speed)
+            .WithMoveSpeed(50f * multiplicator.Speed)
             .WithRange(10 * multiplicator.Range)
             .Build();
     }
