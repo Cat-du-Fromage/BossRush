@@ -1,23 +1,7 @@
-﻿using System;
-using BossRush.Entities;
+﻿using BossRush.Entities;
 using Microsoft.Xna.Framework;
 
 namespace BossRush.Enemy;
-
-public struct StatsMultiplicator
-{
-    public readonly int Level;
-    public int Health  => (int)Math.Pow(1.15, Level - 1);
-    public int Damage  => (int)((1 + (Level - 1)) * 0.08);
-    public float Speed => (1 + (Level - 1)) * 1.02f;
-    public int Defense => (int)(Math.Log10(Level + 9));
-    public float Range => (1 + (Level - 1) * 1.03f);
-
-    public StatsMultiplicator(int level)
-    {
-        Level = level;
-    }
-}
 
 public static class EnemyDirector
 {
@@ -41,10 +25,13 @@ public static class EnemyDirector
     {
         return new Enemy.Builder(position, Vector2.Zero)
             .WithName("BasicMeleeEnemy")
+            .IsMelee(true)
             .WithSize(16)
+            .WithDamage(1 * multiplicator.Damage)
             .WithHealth(10 * multiplicator.Health)
             .WithMoveSpeed(40f * multiplicator.Speed)
             .WithRange(0)
+            .WithAttackCooldown(4)
             .Build();
     }
     
@@ -52,10 +39,13 @@ public static class EnemyDirector
     {
         return new Enemy.Builder(position, Vector2.Zero)
             .WithName("BasicRangeEnemy")
+            .IsMelee(false)
             .WithSize(16)
+            .WithDamage(1 * multiplicator.Damage)
             .WithHealth(10 * multiplicator.Health)
             .WithMoveSpeed(40f * multiplicator.Speed)
             .WithRange(10 * multiplicator.Range)
+            .WithAttackCooldown(8)
             .Build();
     }
     
@@ -63,10 +53,13 @@ public static class EnemyDirector
     {
         return new Enemy.Builder(position, Vector2.Zero)
             .WithName("BasicBossEnemy")
+            .IsMelee(false)
             .WithSize(32)
+            .WithDamage(1 * multiplicator.Damage)
             .WithHealth(100 * multiplicator.Level * multiplicator.Health)
             .WithMoveSpeed(50f * multiplicator.Speed)
             .WithRange(10 * multiplicator.Range)
+            .WithAttackCooldown(5)
             .Build();
     }
     
