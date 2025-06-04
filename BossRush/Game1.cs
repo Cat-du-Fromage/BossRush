@@ -32,7 +32,7 @@ public class Game1 : Game
         Globals.Content = Content;
         Globals.LoadContent();
         
-        sceneManager = new SceneManager(new GameManager());
+        sceneManager = new SceneManager();
     }
 
     protected override void Update(GameTime gameTime)

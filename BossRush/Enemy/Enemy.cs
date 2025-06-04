@@ -10,13 +10,14 @@ public class Enemy : EntityBase
     private Texture2D texture;
     
     public string Name { get; private set; }
+    public float Size { get; private set; }
     public int BaseHealth { get; private set; }
     public int CurrentHealth { get; private set; }
     public float MoveSpeed { get; private set; }
     
     public float Range { get; private set; }
-    
-    
+
+    public bool IsMelee => Range < 10;
     public override bool IsAlive() => CurrentHealth > 0;
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
@@ -48,11 +49,12 @@ public class Enemy : EntityBase
             Move(direction);
         }
         Update(gameTime);
+        BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), 16));
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        SimpleShapes.Rectangle(Position, Vector2.One * 16, Color.Purple);
+        SimpleShapes.Rectangle(Position, Vector2.One * Size, Color.Purple);
         /*
         spriteBatch.Draw(texture,
             Position,
@@ -74,21 +76,19 @@ public class Enemy : EntityBase
     {
         //1) prendre la Position du joueur
         Velocity = directionToPlayer * MoveSpeed;
-        //TODO faire la rotation
     }
 
     public void Attack(Vector2 directionToPlayer)
     {
+        Velocity = Vector2.Zero;
         //1) prendre la direction
         //2) créer un projectile
     }
     
     public override void Hit(EntityBase offender)
     {
-        if (offender is Projectile projectile)
-        {
-            CurrentHealth -= (int)projectile.Damage;
-        }
+        if (offender is not Projectile projectile) return;
+        CurrentHealth -= 10; //projectile.Damage;
     }
 
 //-====================================================================================================================-
@@ -105,6 +105,12 @@ public class Enemy : EntityBase
         public Builder WithName(string name)
         {
             enemy.Name = name;
+            return this;
+        }
+        
+        public Builder WithSize(float size)
+        {
+            enemy.Size = size;
             return this;
         }
         

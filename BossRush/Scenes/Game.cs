@@ -38,6 +38,7 @@ public class Game(SceneManager sm) : Scene(sm)
         spriteBatch.Begin();
         ProjectileSystem.Instance.Draw(spriteBatch);
         Player.Instance.Draw(spriteBatch);
+        EnemySystem.Instance.Draw(spriteBatch);
         spriteBatch.End();
         
         HealthBar.Draw(spriteBatch);
@@ -50,6 +51,7 @@ public class Game(SceneManager sm) : Scene(sm)
     {
         ProjectileSystem.Instance.Update(gameTime);
         Player.Instance.Update(gameTime);
+        EnemySystem.Instance.Update(gameTime, Player.Instance.Position);
         HealthBar.Update(Player.Instance.CurrentHealth, Player.Instance.MaxHealth);
         GameManager.Update(gameTime);
     }
