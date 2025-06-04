@@ -2,10 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using BossRush.Animations;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace BossRush.Entities;
+
+public enum AnimationState
+{
+    Idle,
+    Running
+}
 
 public abstract class EntityBase
 {
@@ -14,6 +21,9 @@ public abstract class EntityBase
     protected Vector2 Velocity; // subclasses are in complete control of their acceleration
     public int CurrentHealth { get; set; } = 50; // Todo : Give a reasonable value
     public int MaxHealth { get; set; } = 100; // Todo : Give a reasonable value
+    
+    public Dictionary<AnimationState, Animation> Animations { get; set; }
+    public AnimationState CurrentState { get; set; }
     
     public Vector2 GetVelocity(){
         return Velocity;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using BossRush.Animations;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -36,12 +37,19 @@ public class Player : EntityBase
                 .Apply(new MoveToCaster())
                 .Apply(new DangerZone(TimeSpan.FromSeconds(3))),
             Keys.D4));
+        
+        Animations = new Dictionary<AnimationState, Animation>
+        {
+            {AnimationState.Idle, new Animation(Globals.PlayerTextures["idle"], 2f, 32, 32, 0.1f)},
+            {AnimationState.Running, new Animation(Globals.PlayerTextures["run"],2f, 32, 32, 0.1f, 8)}
+        };
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
         SimpleShapes.Rectangle(Position,30 * Vector2.One,Color.Brown);
         
+        Animations[CurrentState].Draw(spriteBatch, Position, Color.White);
     }
     
     private class PlayerAbility(Ability ability, Keys key)
@@ -83,7 +91,7 @@ public class Player : EntityBase
             direction -= Vector2.UnitY;
         if(Keyboard.GetState().IsKeyDown(Keys.Down) || Keyboard.GetState().IsKeyDown(Keys.S))
             direction += Vector2.UnitY;
-
+        
         if (direction.LengthSquared() > 0)
         {
             direction.Normalize(); // to make sure we cannot go faster in diagonal
@@ -110,6 +118,14 @@ public class Player : EntityBase
         
         BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X+32,Position.Y+32,-10)]),0,2);
         
+        AnimationState state = Velocity == Vector2.Zero ? AnimationState.Idle : AnimationState.Running;
+        
+        SpriteEffects flipSprite = Velocity.X >= 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
+        
+        ChangeState(state);
+        
+        Animations[CurrentState].Update(gameTime, flipSprite);
+        
         base.Update(gameTime);
     }
 
@@ -121,5 +137,14 @@ public class Player : EntityBase
     public override void Hit(EntityBase offender)
     {
         Console.Out.WriteLine("You got hit");
+    }
+    
+    private void ChangeState(AnimationState state)
+    {
+        if (CurrentState != state)
+        {
+            Animations[CurrentState].Reset();
+            CurrentState = state;
+        }
     }
 }

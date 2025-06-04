@@ -104,7 +104,8 @@
 /build:Particles/window_02.png
 /build:Particles/window_03.png
 /build:Particles/window_04.png
-
+/build:Player/idle.png
+/build:Player/run.png
 
 
 /importer:FontDescriptionImporter

@@ -27,6 +27,7 @@ public static class Globals
     public static Texture2D WhitePixel { get; private set; }
 
     public static Dictionary<string, List<Texture2D>> ParticleTextures { get; private set; }
+    public static Dictionary<string, Texture2D> PlayerTextures { get; private set; }
 
     public static void LoadContent()
     {
@@ -36,6 +37,8 @@ public static class Globals
         WhitePixel.SetData([Microsoft.Xna.Framework.Color.White]);
 
         LoadParticleTextures();
+        
+        LoadPlayerTextures();
 
         // Print the number of particle textures loaded for debugging
         foreach (var particleTexturesKey in ParticleTextures.Keys)
@@ -76,6 +79,28 @@ public static class Globals
                 ParticleTextures[key] = new List<Texture2D>();
 
             ParticleTextures[key].Add(texture);
+        }
+    }
+    
+    private static void LoadPlayerTextures()
+    {
+        PlayerTextures = new Dictionary<string, Texture2D>();
+
+        const string PLAYER_PATH = "Player";
+
+        DirectoryInfo dir = new DirectoryInfo(Path.Combine(Content.RootDirectory, PLAYER_PATH));
+        // print the directory path for debugging
+        if (!dir.Exists)
+            throw new DirectoryNotFoundException("Player folder not found: " + dir.FullName);
+
+        // Loop through each file
+        foreach (FileInfo file in dir.GetFiles("*.xnb"))
+        {
+            string fileName = Path.GetFileNameWithoutExtension(file.Name);
+            
+            // Load the texture
+            Texture2D texture = Content.Load<Texture2D>($"{PLAYER_PATH}/{fileName}");
+            PlayerTextures[fileName] = texture;
         }
     }
 }
