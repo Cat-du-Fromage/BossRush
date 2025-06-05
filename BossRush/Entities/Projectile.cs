@@ -35,6 +35,8 @@ public class Projectile : EntityBase
     public int ImpactResistance { get; private set; }
 
     private DateTime _deathTime;
+    private Texture2D _texture;
+    private Color _color;
 
     public class Builder
     {
@@ -58,6 +60,8 @@ public class Projectile : EntityBase
         public int ImpactResistance { get; private set; } = 0;
 
         public TimeSpan LifeSpan { get; private set; } = TimeSpan.FromDays(1);
+        public Texture2D ProjectileTexture { get; private set; } = null;
+        public Color Color { get; private set; } = Color.Red;
 
         public Builder Clone()
         {
@@ -171,6 +175,18 @@ public class Projectile : EntityBase
             return this;
         }
 
+        public Builder SetColor(Color color)
+        {
+            Color = color;
+            return this;
+        }
+
+        public Builder SetTexture(Texture2D texture)
+        {
+            ProjectileTexture = texture;
+            return this;
+        }
+
         public Projectile Build()
         {
             return new Projectile(this);
@@ -187,6 +203,8 @@ public class Projectile : EntityBase
         Damage = builder.Damage;
         Size = builder.Size;
         ImpactResistance = builder.ImpactResistance;
+        _texture = builder.ProjectileTexture;
+        _color = builder.Color;
         
         OnDeath = builder.OnDeath;
         OnHit = builder.OnHit;
@@ -270,7 +288,26 @@ public class Projectile : EntityBase
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        SimpleShapes.Circle(Position,Size,Color.Red);
+        if (_texture != null)
+        {
+            var rotation = Velocity.X == 0 ? 0 : (float)(Math.Atan(Velocity.Y / Velocity.X) + Math.PI / 2);
+            float scale = 2*Size / (float)Math.Min(_texture.Width, _texture.Height);
+            spriteBatch.Draw(
+                texture: _texture,
+                position: Position,
+                sourceRectangle: null,
+                color: _color,
+                rotation: rotation,
+                origin: new Vector2(_texture.Width / 2, _texture.Height / 2),
+                scale: scale,
+                effects: SpriteEffects.None,
+                layerDepth: 0
+            );
+        }
+        else
+        {
+            SimpleShapes.Circle(Position, Size, _color);
+        }
     }
 
     private void Die()

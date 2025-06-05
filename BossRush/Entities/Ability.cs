@@ -81,6 +81,11 @@ public class BaseDefense : Ability
 
 public class TargetAttack : Ability
 {
+
+ public TargetAttack()
+ {
+  Builder.SetSize(20).SetTexture(Globals.ParticleTextures["magic"][2]);
+ }
  public override void Use(EntityBase caster, Point target, float damage)
  {
   
@@ -105,6 +110,11 @@ public class TargetAttack : Ability
 
 public class DistantMagic : Ability
 { 
+ 
+ public DistantMagic()
+ {
+  Builder.SetSize(20).SetTexture(Globals.ParticleTextures["magic"][2]);
+ }
  public override void Use(EntityBase caster, Point target, float damage)
  {
   Builder
