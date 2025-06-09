@@ -189,6 +189,10 @@ public class Enemy : EntityBase
             {
                 throw new InvalidOperationException("Name is required to build Enemy");
             }
+            if (!enemy.IsMelee && enemy.Ability == null)
+            {
+                enemy.Ability = new BaseAttack().Apply(new Arrow());
+            }
             return enemy;
         }
     }
