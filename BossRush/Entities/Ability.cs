@@ -13,7 +13,8 @@ namespace BossRush.Entities;
  - distantMagic :  creates a projectile at position
  
  Abilities type define how the target is selected, the initial velocity and the initial position
- Abilities can be given properties that will be applied to the created projectile
+ Abilities can be given properties that will be applied to the projectile builder
+ The use method takes as argument the damage the projectile should yield
 */
 
 public abstract class Ability 
@@ -31,9 +32,9 @@ public abstract class Ability
   return this;
  }
 
- public virtual void Use(EntityBase caster, Point target)
+ public virtual void Use(EntityBase caster, Point target, float damage)
  {
-  ProjectileSystem.Add(Builder.Build());
+  ProjectileSystem.Add(Builder.SetDamage(damage).Build());
  }
 
 }
@@ -41,7 +42,7 @@ public abstract class Ability
 
 public class BaseAttack : Ability
 {
- public override void Use(EntityBase caster, Point target)
+ public override void Use(EntityBase caster, Point target, float damage)
  {
   Vector2 pt = target.ToVector2() - caster.Position;
   pt.Normalize();
@@ -52,7 +53,7 @@ public class BaseAttack : Ability
    .SetVelocity(pt)
    .SetOwner(caster);
   
-  base.Use(caster, target);
+  base.Use(caster, target, damage);
  }
 }
 
@@ -63,7 +64,7 @@ public class BaseDefense : Ability
   Builder.SetSize(5)
    .SetVelocity(Vector2.Zero);
  }
- public override void Use(EntityBase caster, Point target)
+ public override void Use(EntityBase caster, Point target, float damage)
  {
   // target the closest projectile from caster
   EntityBase closest = caster.FindClosestFromPoint(ProjectileSystem.Instance.Projectiles, caster.Position.ToPoint(), 200);
@@ -74,13 +75,13 @@ public class BaseDefense : Ability
    .SetTarget(closest)
    .SetPosition(caster.Position);
   
-  base.Use(caster, target);
+  base.Use(caster, target, damage);
  }
 }
 
 public class TargetAttack : Ability
 {
- public override void Use(EntityBase caster, Point target)
+ public override void Use(EntityBase caster, Point target, float damage)
  {
   
   EntityBase closestEntity = caster.FindClosestFromPoint(
@@ -98,18 +99,18 @@ public class TargetAttack : Ability
    .SetTarget(closestEntity)
    .SetPosition(caster.Position);
   
-  base.Use(caster, target);
+  base.Use(caster, target, damage);
  }
 }
 
 public class DistantMagic : Ability
 { 
- public override void Use(EntityBase caster, Point target)
+ public override void Use(EntityBase caster, Point target, float damage)
  {
   Builder
    .SetPosition(target.ToVector2())
    .SetOwner(caster);
   
-  base.Use(caster, target);
+  base.Use(caster, target, damage);
  }
 }

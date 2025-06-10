@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using BossRush.Particles;
 using BossRush.Animations;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,6 +13,7 @@ public class Player : EntityBase
 { 
     
     public static Player Instance{get; private set;}
+    public float Damage { get; private set; }
 
     public static void Initialize(Vector2 position)
     {
@@ -24,8 +26,14 @@ public class Player : EntityBase
     {
         BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X+32,Position.Y+32,-10)]),0,2);
         
+        Damage = 10;
+        
         _abilities.Add(new PlayerAbility(
-            new BaseAttack().Apply(new Arrow()).Apply(new Explosive()),Keys.D1));
+            new BaseAttack()
+                .Apply(new Arrow())
+                .Apply(new Explosive())
+                .Apply(new FireEffect(ParticleSystem.Instance.Presets.CreateMuzzleFlash))
+                .Apply(new TrailEffect(ParticleSystem.Instance.Presets.CreateSplash)),Keys.D1));
         
         _abilities.Add(new PlayerAbility(new BaseDefense(),Keys.D2));
         
@@ -62,7 +70,7 @@ public class Player : EntityBase
             if (Keyboard.GetState().IsKeyDown(key) && !wasDown)
             {
                 wasDown = true;
-                ability.Use(caster,Mouse.GetState().Position);
+                ability.Use(caster,Mouse.GetState().Position,caster.Damage);
             }
             else if (Keyboard.GetState().IsKeyUp(key) && wasDown)
                 wasDown = false;
@@ -137,6 +145,14 @@ public class Player : EntityBase
     public override void Hit(EntityBase offender)
     {
         Console.Out.WriteLine("You got hit");
+        if (offender is Enemy.Enemy enemy)
+        {
+            CurrentHealth -= enemy.Damage;
+        }
+        else if (offender is Projectile projectile)
+        {
+            CurrentHealth -= (int)projectile.Damage;
+        }
     }
     
     private void ChangeState(AnimationState state)
