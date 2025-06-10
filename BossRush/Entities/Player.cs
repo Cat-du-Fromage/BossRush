@@ -30,14 +30,17 @@ public class Player : EntityBase
         _abilities.Add(new PlayerAbility(
             new BaseAttack()
                 .Apply(new Arrow())
-                .Apply(new Explosive())
                 .Apply(new FireEffect(ParticleSystem.Instance.Presets.CreateMuzzleFlash))
-                .Apply(new TrailEffect(ParticleSystem.Instance.Presets.CreateSplash)),Keys.D1));
+                .Apply(new HitEffect(ParticleSystem.Instance.Presets.CreateSplash))
+                .Apply(new TrailEffect(ParticleSystem.Instance.Presets.CreateFlash)),Keys.D1));
         
         _abilities.Add(new PlayerAbility(new BaseDefense(),Keys.D2));
         
         _abilities.Add(new PlayerAbility(
-            new TargetAttack().Apply(new Homing()),Keys.D3));
+            new TargetAttack()
+                .Apply(new Homing())
+                .Apply(new Explosive())
+            ,Keys.D3));
         
         _abilities.Add(new PlayerAbility(
             new DistantMagic()

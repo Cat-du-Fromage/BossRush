@@ -103,6 +103,7 @@ public class DangerZone(TimeSpan delay) : IProjectileDirector
                 ProjectileSystem.Add(
                     copy.SetPosition(projectile.Position)
                         .SetOwner(projectile.Owner)
+                        .SetDamage(projectile.Damage)
                         .Build());
             })
             .SetLifeSpan(delay)
