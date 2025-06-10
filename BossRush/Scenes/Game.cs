@@ -1,3 +1,10 @@
+// ================================================================================
+// File : Game.cs
+// Project name : BossRush
+// Project members :
+// - Florian Duruz, Mathieu Rabot, Raphaël Perret
+// ================================================================================
+
 using BossRush.Enemy;
 using BossRush.Entities;
 using BossRush.Managers;
@@ -8,15 +15,26 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace BossRush.Scenes;
 
+/**
+ * @brief The Game scene of the BossRush game.
+ * @details The Game scene of the BossRush game. This scene handles the main gameplay loop, including player actions, enemy interactions, and rendering of game elements.
+ * @param sm The SceneManager instance to manage scene transitions and actions.
+ */
 public class Game(SceneManager sm) : Scene(sm)
 { 
     
     private readonly Color BACKGROUND_COLOR = new (160, 200, 120);
+    
+    /**
+     * @brief Loads the game resources.
+     */
     protected override void Load()
-    {
-        
-    }
+    { }
 
+    /**
+     * @brief Activates the game scene.
+     * @details This method initializes the ParticleSystem, ProjectileSystem, Player, HealthBar, and GameManager.
+     */
     public override void Activate()
     {
         ParticleSystem.Initialize();
@@ -27,6 +45,11 @@ public class Game(SceneManager sm) : Scene(sm)
         GameManager.Initialize();
     }
     
+    /**
+     * @brief Draws the game scene.
+     * @param spriteBatch The SpriteBatch used for drawing the scene.
+     * @details This method draws the background, player, enemies, projectiles, particles, health bar, and game manager UI.
+     */
     public override void Draw(SpriteBatch spriteBatch)
     {
         spriteBatch.Begin();
@@ -46,15 +69,13 @@ public class Game(SceneManager sm) : Scene(sm)
         
     }
 
+    /**
+     * @brief Updates the game scene.
+     * @param gameTime The current game time.
+     * @details This method updates the game state, including spawning particles, updating projectiles, player, enemies, health bar, and game manager.
+     */
     public override void Update(GameTime gameTime)
     {
-        //every 3 seconds, spawn a new Particle
-        if (gameTime.TotalGameTime.TotalSeconds % 3 < 0.1)
-        {
-            ParticleSystem.Instance.Presets.CreateMuzzleFlash(
-                Player.Instance.Position, Vector2.One);
-        }
-        
         ProjectileSystem.Instance.Update(gameTime);
         ParticleSystem.Instance.Update(gameTime);
         Player.Instance.Update(gameTime);
