@@ -12,8 +12,15 @@ public class ParticleEmitter
     public Particle CreateParticle(Texture2D texture, Vector2 position, Vector2 velocity, Color color, float size,
         float lifeTime, float rotation = 0f)
     {
-        Particle particle = particlePool.Count > 0 ? particlePool.Pop() : new Particle(
-            texture, position, velocity, color, size, lifeTime, rotation);
+        Particle particle = particlePool.Count > 0 ? particlePool.Pop() : new Particle();
+        particle.Texture = texture;
+        particle.Position = position;
+        particle.Velocity = velocity;
+        particle.Color = color;
+        particle.Size = size;
+        particle.Rotation = rotation;
+        particle.CurrentLife = lifeTime;
+        particle.LifeTime = lifeTime; 
         
         particles.Add(particle);
         return particle;

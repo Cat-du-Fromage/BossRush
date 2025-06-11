@@ -3,19 +3,25 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace BossRush.Particles;
 
-public class Particle(Texture2D texture, Vector2 position, Vector2 velocity, Color color, float size, float lifeTime, float rotation = 0f)
+public class Particle
 {
+    public Texture2D Texture;
+    public Vector2 Position;
+    public Vector2 Velocity;
+    public Color Color;
+    public float Size;
+    public float Rotation;
+    public float CurrentLife;
+    public float LifeTime;
 
-    private float currentLife = lifeTime;
-    private Vector2 _position = position;
-    public bool IsActive => currentLife > 0;
+    public bool IsActive => CurrentLife > 0;
 
     public void Update(GameTime gt)
     {
         if (!IsActive) return;
         float deltaTime = (float)gt.ElapsedGameTime.TotalSeconds;
-        _position += velocity * deltaTime;
-        currentLife -= deltaTime;
+        Position += Velocity * deltaTime;
+        CurrentLife -= deltaTime;
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -23,13 +29,13 @@ public class Particle(Texture2D texture, Vector2 position, Vector2 velocity, Col
         if (!IsActive) return;
         
         spriteBatch.Draw(
-            texture: texture,
-            position: _position,
+            texture: Texture,
+            position: Position,
             sourceRectangle: null,
-            color: color,
-            rotation: rotation,
-            origin: new Vector2(texture.Width / 2, texture.Height / 2),
-            scale: size,
+            color: Color,
+            rotation: Rotation,
+            origin: new Vector2(Texture.Width / 2, Texture.Height / 2),
+            scale: Size,
             effects: SpriteEffects.None,
             layerDepth: 0
         );
