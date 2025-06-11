@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BossRush.Entities;
 using BossRush.Particles;
 using Microsoft.Xna.Framework;
@@ -60,9 +61,24 @@ public class Enemy : EntityBase
         BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size/2));
     }
 
-    private void BossUpdate()
+    public void AvoidOverlap(List<Enemy> allEnemies)
     {
-        
+        float minDistance = Size * 2; // Distance minimale souhaitée
+        const float repulsionForce = 0.5f; // Force de répulsion
+
+        foreach (Enemy other in allEnemies)
+        {
+            if (other == this) continue;
+            Vector2 direction = Position - other.Position;
+            float distance = direction.Length();
+
+            // Si trop proche
+            if (distance < minDistance && distance > 0)
+            {
+                direction.Normalize();
+                Velocity += direction * repulsionForce * (minDistance - distance);
+            }
+        }
     }
 
     public override void Draw(SpriteBatch spriteBatch)
@@ -95,6 +111,7 @@ public class Enemy : EntityBase
         else
         {
             Velocity = directionToPlayer * MoveSpeed;
+            AvoidOverlap(EnemySystem.Instance.GetNearbyEnemies(Position));
         }
     }
 
