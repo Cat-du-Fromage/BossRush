@@ -29,7 +29,7 @@ public static class EnemyDirector
             .WithSize(40)
             .WithDamage(1 * multiplicator.Damage)
             .WithHealth(10 * multiplicator.Health)
-            .WithMoveSpeed(40f * multiplicator.Speed)
+            .WithMoveSpeed(30f * multiplicator.Speed)
             .WithRange(0)
             .WithAttackCooldown(multiplicator.AttackCooldown)
             .Build();
