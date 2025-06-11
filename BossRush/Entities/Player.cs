@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection.Metadata.Ecma335;
 using BossRush.Particles;
 using BossRush.Animations;
 using Microsoft.Xna.Framework;
@@ -169,7 +170,7 @@ public class Player : EntityBase
 
     public override void Hit(EntityBase offender)
     {
-        Console.Out.WriteLine("You got hit");
+        if (dashAbility.IsInvincible) return;
         if (offender is Enemy.Enemy enemy)
         {
             CurrentHealth -= enemy.Damage;
