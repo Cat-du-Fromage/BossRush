@@ -5,7 +5,6 @@ namespace BossRush.Enemy;
 
 public static class EnemyDirector
 {
-
     public static Enemy CreateMeleeEnemyLevel(int level, Vector2 position)
     {
         return CreateBasicMeleeEnemy(position, new StatsMultiplicator(level));
@@ -25,13 +24,14 @@ public static class EnemyDirector
     {
         return new Enemy.Builder(position, Vector2.Zero)
             .WithName("BasicMeleeEnemy")
+            .WithColor(Color.Khaki)
             .IsMelee(true)
-            .WithSize(16)
+            .WithSize(40)
             .WithDamage(1 * multiplicator.Damage)
             .WithHealth(10 * multiplicator.Health)
             .WithMoveSpeed(40f * multiplicator.Speed)
             .WithRange(0)
-            .WithAttackCooldown(4)
+            .WithAttackCooldown(multiplicator.AttackCooldown)
             .Build();
     }
     
@@ -39,13 +39,14 @@ public static class EnemyDirector
     {
         return new Enemy.Builder(position, Vector2.Zero)
             .WithName("BasicRangeEnemy")
+            .WithColor(Color.Purple)
             .IsMelee(false)
-            .WithSize(16)
+            .WithSize(32)
             .WithDamage(8 * multiplicator.Damage)
             .WithHealth(10 * multiplicator.Health)
             .WithMoveSpeed(40f * multiplicator.Speed)
             .WithRange(650 * multiplicator.Range)
-            .WithAttackCooldown(8)
+            .WithAttackCooldown(multiplicator.AttackCooldown)
             .WithAbility(new BaseAttack().Apply(new Arrow()))
             .Build();
     }
@@ -54,13 +55,14 @@ public static class EnemyDirector
     {
         return new Enemy.Builder(position, Vector2.Zero)
             .WithName("BasicBossEnemy")
+            .WithColor(Color.Navy)
             .IsMelee(false)
-            .WithSize(32)
+            .WithSize(64)
             .WithDamage(16 * multiplicator.Damage)
             .WithHealth(100 * multiplicator.Level * multiplicator.Health)
             .WithMoveSpeed(50f * multiplicator.Speed)
             .WithRange(500 * multiplicator.Range)
-            .WithAttackCooldown(5)
+            .WithAttackCooldown(multiplicator.AttackCooldown)
             .WithAbility(new BaseAttack().Apply(new Arrow()))
             .Build();
     }

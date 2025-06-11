@@ -259,7 +259,7 @@ public class Projectile : EntityBase
         var collidingEnemies = FindAllColliding(EnemySystem.Instance.Enemies);
         foreach (Enemy.Enemy enemy in collidingEnemies)
         {
-            if(enemy != Owner)
+            if(enemy != Owner && Owner is not Enemy.Enemy)
                 enemy.Hit(this);
         }
         if(collidingEnemies.Count > 0)

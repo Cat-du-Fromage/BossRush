@@ -9,7 +9,7 @@ namespace BossRush.Enemy;
 public class Enemy : EntityBase
 {
     private Texture2D texture;
-    
+    public Color Color { get; private set; } = Color.Purple;
     public string Name { get; private set; }
     public float Size { get; private set; }
     
@@ -57,12 +57,17 @@ public class Enemy : EntityBase
             AttackCooldown.Update(deltaTime);
         }
         Update(gameTime);
-        BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), 16));
+        BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size/2));
+    }
+
+    private void BossUpdate()
+    {
+        
     }
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        SimpleShapes.Rectangle(Position, Vector2.One * Size, Color.Purple);
+        SimpleShapes.Rectangle(Position, Vector2.One * Size, Color);
         /*
         spriteBatch.Draw(texture,
             Position,
@@ -82,7 +87,7 @@ public class Enemy : EntityBase
 
     public void Move(Vector2 directionToPlayer)
     {
-        float maxDistance = IsMelee ? 0 : 100;
+        float maxDistance = IsMelee ? 0 : 150;
         if (Vector2.Distance(Player.Instance.Position, Position) <= maxDistance)
         {
             Velocity = Vector2.Zero;
@@ -110,6 +115,7 @@ public class Enemy : EntityBase
     public override void Hit(EntityBase offender)
     {
         if (offender is not Projectile projectile) return;
+        if (projectile.Owner is Enemy) return;
         CurrentHealth -= (int)projectile.Damage; //projectile.Damage;
     }
 
@@ -127,6 +133,12 @@ public class Enemy : EntityBase
         public Builder WithName(string name)
         {
             enemy.Name = name;
+            return this;
+        }
+        
+        public Builder WithColor(Color color)
+        {
+            enemy.Color = color;
             return this;
         }
         
@@ -181,18 +193,30 @@ public class Enemy : EntityBase
             return this;
         }
 
+        private void Validate()
+        {
+            if (string.IsNullOrEmpty(enemy.Name)) enemy.Name = "DefaultName";
+            if (enemy.IsMelee) enemy.Range = 0;
+            if (enemy.Damage < 0) enemy.Damage = 0;
+            if (enemy.MoveSpeed < 0) enemy.MoveSpeed = 10;
+            if (enemy.Size <= 0) enemy.Size = 16;
+            if (enemy.BaseHealth <= 0)
+            {
+                enemy.BaseHealth = 10;
+                enemy.CurrentHealth = 10;
+            }
+            if (!enemy.IsMelee)
+            {
+                if (enemy.Range <= 0)
+                    enemy.Range = 10;
+                if(enemy.Ability == null)
+                    enemy.Ability = new BaseAttack().Apply(new Arrow());
+            }
+        }
 
         public Enemy Build()
         {
-            // Validation des champs obligatoires
-            if (string.IsNullOrEmpty(enemy.Name))
-            {
-                throw new InvalidOperationException("Name is required to build Enemy");
-            }
-            if (!enemy.IsMelee && enemy.Ability == null)
-            {
-                enemy.Ability = new BaseAttack().Apply(new Arrow());
-            }
+            Validate();
             return enemy;
         }
     }
