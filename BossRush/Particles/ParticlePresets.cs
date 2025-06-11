@@ -20,13 +20,25 @@ public class ParticlePresets(ParticleEmitter particleEmitter)
         );
     }
 
-    public void CreateSplash(Vector2 position, Vector2 direction)
+    public void CreateFlash(Vector2 position, Vector2 direction)
     {
         particleEmitter.CreateParticle(
             texture: Globals.ParticleTextures["fire"][1],
             position: position,
             velocity: Vector2.Zero,
             color: Color.DarkGray,
+            size: MAX_SIZE / 4,
+            lifeTime: 0.5f
+        );
+    }
+    
+    public void CreateSplash(Vector2 position, Vector2 direction)
+    {
+        particleEmitter.CreateParticle(
+            texture: Globals.ParticleTextures["dirt"][0],
+            position: position,
+            velocity: Vector2.Zero,
+            color: Color.Red,
             size: MAX_SIZE / 4,
             lifeTime: 0.5f
         );

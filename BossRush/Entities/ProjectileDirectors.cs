@@ -37,11 +37,11 @@ public class Arrow : IProjectileDirector
     {
         return builder
             .SetDirect(null)
+            .SetSize(8)
             .SetFriction(0.5f)
             .SetMaxAcceleration(0)
             .SetLifeSpan(TimeSpan.FromSeconds(10))
-            .SetMaxSpeed(500)
-            .SetSize(8);
+            .SetMaxSpeed(500);
     }
 }
 
@@ -54,7 +54,6 @@ public class ConservativeHoming : IProjectileDirector
             .SetMaxAcceleration(500)
             .SetMaxSpeed(600)
             .SetLifeSpan(TimeSpan.FromSeconds(20))
-            .SetSize(10)
             .SetDirect(projectile =>
             {
                 Vector2 v = projectile.GetVelocity();
@@ -77,12 +76,14 @@ public class Explosive : IProjectileDirector
             ProjectileSystem.Add(
                 new Projectile.Builder()
                     .SetOwner(null)  // explosion will hurt the casters
-                    .SetLifeSpan(TimeSpan.FromSeconds(1))
+                    .SetLifeSpan(TimeSpan.FromSeconds(0.3))
                     .SetImpactResistance(int.MaxValue)
                     .SetMaxSpeed(0)
                     .SetVelocity(Vector2.Zero)
                     .SetPosition(projectile.Position)
                     .SetSize(50)
+                    .SetTexture(Globals.ParticleTextures["scorch"][2])
+                    .SetColor(Color.DarkOrange)
                     .Build()
             );
         });
@@ -102,10 +103,13 @@ public class DangerZone(TimeSpan delay) : IProjectileDirector
                 ProjectileSystem.Add(
                     copy.SetPosition(projectile.Position)
                         .SetOwner(projectile.Owner)
+                        .SetDamage(projectile.Damage)
                         .Build());
             })
             .SetLifeSpan(delay)
-            .SetImpactResistance(int.MaxValue);
+            .SetImpactResistance(int.MaxValue)
+            .SetTexture(Globals.ParticleTextures["circle"][0])
+            .SetColor(Color.DarkRed);
     }
 }
 
