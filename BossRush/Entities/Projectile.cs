@@ -243,29 +243,23 @@ public class Projectile : EntityBase
     private void CollisionUpdate(GameTime gameTime)
     {
         BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size));
-        
-        // Collide with other projectiles
-        List<Projectile> collidingProjectiles = FindAllColliding(ProjectileSystem.Instance.Projectiles);
-        foreach (Projectile projectile in collidingProjectiles)
-        {
-            projectile.Hit(this);
-        }
-        if((collidingProjectiles.Count > 0))
-            Hit(this);
-        if(TargetEntity != null && !TargetEntity.IsAlive())
-            Die();
 
         // Collide with enemies
         var collidingEnemies = FindAllColliding(EnemySystem.Instance.Enemies);
         foreach (Enemy.Enemy enemy in collidingEnemies)
         {
-            if(enemy != Owner && Owner is not Enemy.Enemy)
+            if (Owner is not Enemy.Enemy)
+            {
                 enemy.Hit(this);
+                Hit(this);
+            }
         }
-        if(collidingEnemies.Count > 0)
+
+        if (Owner != Player.Instance && CollidesWith(Player.Instance))
+        {
+            Player.Instance.Hit(this);
             Hit(this);
-        
-        // TODO : Collide with player
+        }
         
     }
 

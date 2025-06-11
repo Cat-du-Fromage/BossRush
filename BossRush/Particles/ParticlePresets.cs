@@ -39,7 +39,7 @@ public class ParticlePresets(ParticleEmitter particleEmitter)
             position: position,
             velocity: Vector2.Zero,
             color: Color.Red,
-            size: MAX_SIZE / 4,
+            size: MAX_SIZE / 2,
             lifeTime: 0.5f
         );
     }

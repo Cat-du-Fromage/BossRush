@@ -8,6 +8,9 @@ public class EnemySystem
 {
     private static EnemySystem instance;
     public static EnemySystem Instance => instance ??= new EnemySystem();
+    
+    private Dictionary<Vector2, List<Enemy>> spatialGrid = new();
+    
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                               ◆◆◆◆◆◆ PROPERTIES ◆◆◆◆◆◆                                             ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -27,6 +30,7 @@ public class EnemySystem
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
     public void Update(GameTime gameTime, Vector2 target)
     {
+        UpdatePositions();
         for (int i = Enemies.Count - 1; i > -1; i--)
         {
             if (Enemies[i].CurrentHealth <= 0)
@@ -82,7 +86,8 @@ public class EnemySystem
             //Range
             for (int i = levelComposition.MeleeCount; i < positions.Length; i++)
             {
-                Register(EnemyDirector.CreateRangeEnemyLevel(level, positions[i]));
+                Vector2 meleePos = positions[i] + new Vector2(0, Globals.ScreenSize().Y + 32);
+                Register(EnemyDirector.CreateRangeEnemyLevel(level, meleePos));
             }
         }
     }
@@ -102,14 +107,38 @@ public class EnemySystem
         return positions;
     }
     
-    public void TestBuildEnemies()
+    public void UpdatePositions(float cellSize = 32f)
     {
-        for (int i = 0; i < 16; i++)
+        spatialGrid.Clear();
+
+        // 1. Remplir la grille
+        foreach (Enemy enemy in Enemies)
         {
-            int y = i / 4;
-            int x = i - y * 4;
-            Vector2 pos = new Vector2(x, y) * 32 + new Vector2(32,32);
-            Register(EnemyDirector.CreateBasicEnemy(pos));
+            Vector2 cellKey = new Vector2(
+                (int)(enemy.Position.X / cellSize),
+                (int)(enemy.Position.Y / cellSize));
+
+            if (!spatialGrid.ContainsKey(cellKey))
+                spatialGrid[cellKey] = new List<Enemy>();
+            spatialGrid[cellKey].Add(enemy);
         }
+    }
+
+    public List<Enemy> GetNearbyEnemies(Vector2 pos, float cellSize = 32)
+    {
+        List<Enemy> result = new List<Enemy>();
+        Vector2 centerCell = new Vector2((int)(pos.X / cellSize), (int)(pos.Y / cellSize));
+
+        // Vérifie les 9 cellules autour (3x3)
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                Vector2 cellKey = new Vector2(centerCell.X + x, centerCell.Y + y);
+                if (spatialGrid.TryGetValue(cellKey, out List<Enemy> enemies))
+                    result.AddRange(enemies);
+            }
+        }
+        return result;
     }
 }
