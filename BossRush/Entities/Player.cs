@@ -10,8 +10,9 @@ using Microsoft.Xna.Framework.Input;
 namespace BossRush.Entities;
 
 public class Player : EntityBase
-{ 
-    
+{
+
+    private const int _playerHitBoxSize = 32;
     public static Player Instance{get; private set;}
     public float Damage { get; private set; }
 
@@ -24,9 +25,9 @@ public class Player : EntityBase
     }
     private Player(Vector2 position) : base(position, Vector2.Zero)
     {
-        BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X+32,Position.Y+32,-10)]),0,2);
+        BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X + _playerHitBoxSize,Position.Y+_playerHitBoxSize,-10)]),0,2);
         
-        Damage = 10;
+        Damage = 15;
         
         _abilities.Add(new PlayerAbility(
             new BaseAttack()
@@ -58,9 +59,9 @@ public class Player : EntityBase
 
     public override void Draw(SpriteBatch spriteBatch)
     {
-        SimpleShapes.Rectangle(Position,30 * Vector2.One,Color.Brown);
+        //SimpleShapes.Rectangle(Position,_playerHitBoxSize*Vector2.One,Color.Brown);
         
-        Animations[CurrentState].Draw(spriteBatch, Position, Color.White);
+        Animations[CurrentState].Draw(spriteBatch, Position - Vector2.One*_playerHitBoxSize/2, Color.White);
     }
     
     private class PlayerAbility(Ability ability, Keys key)
@@ -92,7 +93,7 @@ public class Player : EntityBase
     {
         UseAbilities();
         
-        const float acceleration = 200, baseSpeed = 100, stopThreshold = 10;
+        const float acceleration = 200, baseSpeed = 150, stopThreshold = 50;
         Vector2 direction = Vector2.Zero;
         if(Keyboard.GetState().IsKeyDown(Keys.Right) || Keyboard.GetState().IsKeyDown(Keys.D))
             direction += Vector2.UnitX;
@@ -124,7 +125,7 @@ public class Player : EntityBase
             Velocity.Normalize();
             Velocity *= baseSpeed;
         }
-        if(Velocity.LengthSquared() < stopThreshold)
+        if(Velocity.LengthSquared() < stopThreshold && direction.Equals(Vector2.Zero))
             Velocity = Vector2.Zero;
         
         BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X+32,Position.Y+32,-10)]),0,2);
