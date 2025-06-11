@@ -18,10 +18,10 @@ public enum AnimationState
 public abstract class EntityBase
 {
     protected BoundingBox BoundingBox;
-    public Vector2 Position { get; private set;}
+    public Vector2 Position { get; protected set;}
     protected Vector2 Velocity; // subclasses are in complete control of their acceleration
-    public int CurrentHealth { get; set; } = 50; // Todo : Give a reasonable value
-    public int MaxHealth { get; set; } = 100; // Todo : Give a reasonable value
+    public int CurrentHealth { get; set; } = 1000; // Todo : Give a reasonable value
+    public int MaxHealth { get; set; } = 1000; // Todo : Give a reasonable value
     
     public Dictionary<AnimationState, Animation> Animations { get; set; }
     public AnimationState CurrentState { get; set; }
