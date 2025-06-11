@@ -141,15 +141,4 @@ public class EnemySystem
         }
         return result;
     }
-    
-    public void TestBuildEnemies()
-    {
-        for (int i = 0; i < 16; i++)
-        {
-            int y = i / 4;
-            int x = i - y * 4;
-            Vector2 pos = new Vector2(x, y) * 32 + new Vector2(32,32);
-            Register(EnemyDirector.CreateBasicEnemy(pos));
-        }
-    }
 }
