@@ -24,7 +24,7 @@ public class LevelComposition
         else
         {
             // Formule de base avec progression exponentielle modérée
-            double baseEnemies = 3 + (level * 0.4);
+            double baseEnemies = 4 + level;
             
             // Répartition aléatoire entre melee/ranged (40-60%)
             Random rand = new Random(level); // Seed basée sur le niveau pour cohérence

@@ -31,7 +31,7 @@ public static class EnemyDirector
             .WithHealth(10 * multiplicator.Health)
             .WithMoveSpeed(40f * multiplicator.Speed)
             .WithRange(0)
-            .WithAttackCooldown(4)
+            .WithAttackCooldown(multiplicator.AttackCooldown)
             .Build();
     }
     
@@ -46,7 +46,7 @@ public static class EnemyDirector
             .WithHealth(10 * multiplicator.Health)
             .WithMoveSpeed(40f * multiplicator.Speed)
             .WithRange(650 * multiplicator.Range)
-            .WithAttackCooldown(8)
+            .WithAttackCooldown(multiplicator.AttackCooldown)
             .WithAbility(new BaseAttack().Apply(new Arrow()))
             .Build();
     }
@@ -62,7 +62,7 @@ public static class EnemyDirector
             .WithHealth(100 * multiplicator.Level * multiplicator.Health)
             .WithMoveSpeed(50f * multiplicator.Speed)
             .WithRange(500 * multiplicator.Range)
-            .WithAttackCooldown(5)
+            .WithAttackCooldown(multiplicator.AttackCooldown)
             .WithAbility(new BaseAttack().Apply(new Arrow()))
             .Build();
     }
