@@ -57,7 +57,12 @@ public class Enemy : EntityBase
             AttackCooldown.Update(deltaTime);
         }
         Update(gameTime);
-        BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), 16));
+        BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size/2));
+    }
+
+    private void BossUpdate()
+    {
+        
     }
 
     public override void Draw(SpriteBatch spriteBatch)
