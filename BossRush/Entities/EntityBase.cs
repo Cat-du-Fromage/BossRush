@@ -11,7 +11,8 @@ namespace BossRush.Entities;
 public enum AnimationState
 {
     Idle,
-    Running
+    Running,
+    DashStart
 }
 
 public abstract class EntityBase

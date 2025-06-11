@@ -13,6 +13,7 @@ public class Player : EntityBase
 { 
     
     public static Player Instance{get; private set;}
+    private DashAbility dashAbility = new DashAbility();
     public float Damage { get; private set; }
 
     public static void Initialize(Vector2 position)
@@ -52,7 +53,8 @@ public class Player : EntityBase
         Animations = new Dictionary<AnimationState, Animation>
         {
             {AnimationState.Idle, new Animation(Globals.PlayerTextures["idle"], 2f, 32, 32, 0.1f)},
-            {AnimationState.Running, new Animation(Globals.PlayerTextures["run"],2f, 32, 32, 0.1f, 8)}
+            {AnimationState.Running, new Animation(Globals.PlayerTextures["run"],2f, 32, 32, 0.1f, 8)},
+            {AnimationState.DashStart, new Animation(Globals.PlayerTextures["dash"], 2f, 32, 32, 0.1f)},
         };
     }
 
@@ -93,6 +95,7 @@ public class Player : EntityBase
         UseAbilities();
         
         const float acceleration = 200, baseSpeed = 100, stopThreshold = 10;
+        
         Vector2 direction = Vector2.Zero;
         if(Keyboard.GetState().IsKeyDown(Keys.Right) || Keyboard.GetState().IsKeyDown(Keys.D))
             direction += Vector2.UnitX;
@@ -127,17 +130,36 @@ public class Player : EntityBase
         if(Velocity.LengthSquared() < stopThreshold)
             Velocity = Vector2.Zero;
         
+        dashAbility.Update(gameTime, direction, ref Velocity);
+        
         BoundingBox = BoundingBox.CreateFromPoints(new List<Vector3>([new Vector3(Position.X,Position.Y,10), new Vector3(Position.X+32,Position.Y+32,-10)]),0,2);
         
-        AnimationState state = Velocity == Vector2.Zero ? AnimationState.Idle : AnimationState.Running;
-        
+        UpdateCharacterAnimation(gameTime);
+      
+        base.Update(gameTime);
+    }
+
+    private void UpdateCharacterAnimation(GameTime gameTime)
+    {
         SpriteEffects flipSprite = Velocity.X >= 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
         
-        ChangeState(state);
+        if (dashAbility.ShouldPlayStartAnimation())
+        {
+            ChangeState(AnimationState.DashStart);
+        }
+        else if (dashAbility.ShouldPlayEndAnimation())
+        {
+            ChangeState(AnimationState.DashStart);
+        }
+        else
+        {
+            AnimationState state = Velocity == Vector2.Zero ? AnimationState.Idle : AnimationState.Running;
+            
+            ChangeState(state);
+        }
         
         Animations[CurrentState].Update(gameTime, flipSprite);
-        
-        base.Update(gameTime);
+
     }
 
     public override bool IsAlive()
