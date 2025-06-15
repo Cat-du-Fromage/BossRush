@@ -18,7 +18,7 @@ public enum AnimationState
 public abstract class EntityBase
 {
     protected BoundingBox BoundingBox;
-    public Vector2 Position { get; private set;}
+    public Vector2 Position { get; protected set;}
     protected Vector2 Velocity; // subclasses are in complete control of their acceleration
     public int MaxHealth { get; set; } = 1000;
     public int CurrentHealth { get; set; } = 1000;

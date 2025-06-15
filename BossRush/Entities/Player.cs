@@ -138,6 +138,15 @@ public class Player : EntityBase
         UpdateCharacterAnimation(gameTime);
       
         base.Update(gameTime);
+        ClampToScreen();
+    }
+    
+    public void ClampToScreen()
+    {
+        Position = new Vector2(
+            MathHelper.Clamp(Position.X, _playerHitBoxSize, Globals.ScreenSize().X - _playerHitBoxSize * 1.5f),
+            MathHelper.Clamp(Position.Y, _playerHitBoxSize, Globals.ScreenSize().Y - _playerHitBoxSize * 2.5f)
+        );
     }
 
     private void UpdateCharacterAnimation(GameTime gameTime)
