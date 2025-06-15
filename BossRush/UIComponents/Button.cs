@@ -1,11 +1,21 @@
+// ================================================================================
+// File : Button.cs
+// Project name : BossRush
+// Project members :
+// - Florian Duruz, Mathieu Rabot, Raphaël Perret
+// ================================================================================
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-// ReSharper disable All
+
 
 namespace BossRush.Scenes.UIComponents;
 
+/**
+ * @brief Represents a button in the UI.
+ * @details This class handles the button's appearance, state, and interaction. It can be drawn on the screen and responds to mouse input.
+ */
 public class Button
 {
     private const int BUTTON_OFFSET = 5;
@@ -26,6 +36,14 @@ public class Button
     private bool isPressed;
     private Action onClick;
     public Vector2 position { get; private set; }
+    
+    /**
+     * @brief Initializes a new instance of the Button class.
+     * @param text The text displayed on the button.
+     * @param x The x-coordinate of the button's center.
+     * @param y The y-coordinate of the button's center.
+     * @param onClick An optional action to perform when the button is clicked.
+     */
     public Button(string text, int x, int y, Action onClick = null)
     {
         this.text = text;
@@ -36,6 +54,10 @@ public class Button
         BUTTON.SetData(new[] { Color.White });
     }
   
+    /**
+     * @brief Draws the button on the screen.
+     * @param spriteBatch The SpriteBatch used for drawing the button.
+     */
     public void Draw(SpriteBatch spriteBatch)
     {
         // Draw the button background
@@ -57,6 +79,10 @@ public class Button
 
     }
     
+    /**
+     * @brief Updates the button state based on mouse input.
+     * @details This method checks if the mouse is hovering over the button and if it is pressed, triggering the onClick action if applicable.
+     */
     public void Update()
     {
         var mouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
