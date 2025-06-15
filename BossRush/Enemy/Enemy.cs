@@ -16,7 +16,7 @@ public class Enemy : EntityBase
     
     public bool IsMelee { get; private set; }
     public int BaseHealth { get; private set; }
-    public int CurrentHealth { get; private set; }
+    //public int CurrentHealth { get; private set; }
     public float MoveSpeed { get; private set; }
     public int Damage { get; private set; }
     public AttackCooldown AttackCooldown { get; private set; }
@@ -34,8 +34,6 @@ public class Enemy : EntityBase
     {
         texture = Globals.Content.Load<Texture2D>("triangleRed");
     }
-
-    private Enemy() : this(Vector2.Zero, Vector2.Zero) { }
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                           ◆◆◆◆◆◆ MONOGAME EVENTS ◆◆◆◆◆◆                                            ║
