@@ -75,7 +75,7 @@ nemy (Classe de base)
 // - Collisions et dégâts
 ```
 
-EnemyDirector (Factory)
+EnemyDirector (Director)
 ```csharp
 // Crée des ennemis pré-configurés selon leur type et niveau
 // - Applique des modificateurs de statistiques progressifs
