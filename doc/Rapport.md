@@ -115,9 +115,9 @@ La classe `Global` contient des constantes et des paramètres globaux utilisés 
 ### Ennemies:
 Le pattern Builder a été essentiel pour la création d'ennemis variés tout en évitant une hiérarchie de classes complexe. Voici comment nous l'avons appliqué :
 
-Flexibilité : Permet de configurer facilement des dizaines de combinaisons de stats (dégâts, portée, vitesse) sans explosion combinatoire
+1. Flexibilité : Permet de configurer facilement des dizaines de combinaisons de stats (dégâts, portée, vitesse) sans explosion combinatoire
 
-Lisibilité : Le code client reste clair grâce au chaînage de méthodes :
+2. Lisibilité : Le code client reste clair grâce au chaînage de méthodes :
 
 ```csharp
 new Enemy.Builder(position, Vector2.Zero)
@@ -126,20 +126,20 @@ new Enemy.Builder(position, Vector2.Zero)
     .WithDamage(20)
     .Build();
 ```
-Validation : Le Builder intègre des contrôles pour garantir que chaque ennemi a des stats valides :
+3. Validation : Le Builder intègre des contrôles pour garantir que chaque ennemi a des stats valides :
 
 ```csharp
 if (enemy.Damage < 0) enemy.Damage = 0; // Valeurs minimales garanties
 ```
-Extensibilité : Simplifie l'ajout de nouveaux attributs (comme les capacités spéciales) sans modifier les classes existantes
+4. Extensibilité : Simplifie l'ajout de nouveaux attributs (comme les capacités spéciales) sans modifier les classes existantes
 
 Ce pattern nous a particulièrement aidés pour :
 
-Créer des variants d'ennemis avec peu de code
+* Créer des variants d'ennemis avec peu de code
 
-Maintenir un équilibrage précis entre les niveaux
+* Maintenir un équilibrage précis entre les niveaux
 
-Isoler la logique de construction complexe du reste du jeu
+* Isoler la logique de construction complexe du reste du jeu
 
 ## Conclusion
 Notre projet de jeu vidéo a été une expérience enrichissante qui nous a permis de mettre en pratique nos compétences apprises en cours, notamment en programmation orientée objet et en design patterns. L'utilisation du pattern Builder a été particulièrement bénéfique pour structurer le code de manière modulaire et extensible, facilitant ainsi l'ajout de nouvelles fonctionnalités et la maintenance du projet.
