@@ -13,10 +13,8 @@ public class Enemy : EntityBase
     public Color Color { get; private set; } = Color.Purple;
     public string Name { get; private set; }
     public float Size { get; private set; }
-    
     public bool IsMelee { get; private set; }
     public int BaseHealth { get; private set; }
-    //public int CurrentHealth { get; private set; }
     public float MoveSpeed { get; private set; }
     public int Damage { get; private set; }
     public AttackCooldown AttackCooldown { get; private set; }
