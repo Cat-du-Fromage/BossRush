@@ -23,8 +23,14 @@ Le projet est organisé en plusieurs classes et namespaces, chacun ayant une res
 Les animations sont gérées par la classe `Animation`, qui permet de créer des animations à partir de spritesheets. Chaque animation est définie par une série de frames, une durée et un état (active ou inactive). Les animations sont surtout utilisées pour le joueur, en lui donnant une animation de marche, attente et dash.
 
 ### Joueur:
+Le joueur étends la classe EntityBase et est un singleton, pour permettre facilement aux ennemis d'accèder au joueur. Il possède une classe interne PlayerAbility qui associe simplement une Ability et une touche du clavier.
 ```csharp
-// Todo
+// Exemple of player ability creation
+_abilities.Add(new PlayerAbility(
+            new TargetAttack()
+                .Apply(new Homing())
+                .Apply(new Explosive())
+            ,Keys.D3));
 ```
 ### Dash:
 Le dash est une mécanique de jeu qui permet au joueur de se déplacer rapidement sur une courte distance, esquivant ainsi les attaques ennemies. Il est implémenté dans la classe `Dash`, qui gère la logique du dash, y compris la durée, la distance et les frames d'invincibilité. Le dash utilise une courbe sinusoïdale pour simuler un mouvement fluide et naturel.
@@ -106,6 +112,59 @@ StatsMultiplicator
 // - Vitesse (+2% par niveau)
 // - Défense (logarithmique)
 ```
+
+### Projectiles
+Conçus pour adopter des apparences, règles et comportement très différents. Ils ont pour ce but de très nombreux paramètres, ce qui justifie la création d'un builder pour ceux-ci. Ils étendent aussi EntityBase, ce qui permet à un projectile d'en cibler un autre par exemple. 
+
+Exemple de création d'un projectile guidé conservant sa vitesse.
+```csharp
+new Projectile.Builder()
+    .SetFriction(0.4f)
+    .SetMaxAcceleration(500)
+    .SetMaxSpeed(600)
+    .SetLifeSpan(TimeSpan.FromSeconds(20))
+    .SetDirect(projectile =>
+    {
+        Vector2 v = projectile.GetVelocity();
+        float scalar = v.Length();
+        Vector2 at = projectile.TargetEntity.Position - projectilPosition;
+        Vector2 orthogonal = new Vector2(v.Y, -v.X);
+        at.Normalize();
+        return Utility.Projection(at, orthogonal) * scalar;
+    })
+    .setTarget(targetEntity)
+    .setVelocity(targetEntity.Position - caster.Positions)
+    .build();
+```
+
+L'attribut Direct(projectile)->Vec2 est la fonction utilisée pour donner une accéleration dynamique au projectile. Si elle est NULL, le projectile va simplement en ligne droite est sa vitesse diminue par friction.  
+
+Une série de hooks (onFire, onUpdate, onDeath, onHit) permettent de réagire à ces évènements, notemment de créer des particules.
+
+Comme tous ces attributs appelables peuvent être nulls, la syntax de C# a été appréciable : `OnDeath?.Invoke(this);` remplace `if(OnDeath != null)OnDeath.Invoke(this)`
+
+#### Builder
+Le builer de projectile est une classe interne déclarant tous ces attribut comme accessible en lecture publiquement (avec un getter), afin que le constructeur (privé) de projectile puisse y accèder. Encore une fois la syntax de C3 est appréciable `public Type Attribute {get; private set};` remplace  
+
+```csharp
+private Type _attribute;
+public Type getAttribute(){return _attribute;}
+```
+
+Il vérifie l'intégrité des données dans la méthode build, avant d'appler le contructeur de projectile.
+
+``` csharp
+public Projectile build(){
+    // validate data
+    if(... > limit) throw ...;
+    // Create projectile
+    return new Projectile(this);
+}
+```
+
+#### Projectile Director
+
+L'interface IProjectileDirector est surement une erreur, et ne constitue qu'un essai (un peu raté) de simplifier la création de projectiles. L'idée était de pouvoir donner des directeurs à appliquer sur les builders des abilities et même pourquoi pas changer le comportement des abilities dynamiquement. Cela à au final ajouté beaucoup de code et de compléxité pour rien. Avec plus de temps c'est un des premiers éléments qui serait refactor.
 
 ### Global:
 La classe `Global` contient des constantes et des paramètres globaux utilisés dans tout le jeu, tels que les dimensions de la fenêtre, les couleurs et les ressources partagées. Elle permet de centraliser la configuration du jeu et d'éviter la duplication de code.
