@@ -15,5 +15,5 @@ public struct StatsMultiplicator
     public StatsMultiplicator(int level)
     {
         Level = level;
-    }
+    } 
 }
