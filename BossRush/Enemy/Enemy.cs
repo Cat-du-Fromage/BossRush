@@ -10,24 +10,71 @@ namespace BossRush.Enemy;
 public class Enemy : EntityBase
 {
     private Texture2D texture;
+    /**
+     * The color used to render this enemy
+     */
     public Color Color { get; private set; } = Color.Purple;
+    
+    /**
+     * The name identifier for this enemy type
+     */
     public string Name { get; private set; }
+    
+    /**
+     * The size (width and height) of this enemy
+     */
     public float Size { get; private set; }
+    
+    /**
+     * Whether this enemy is a melee type
+     */
     public bool IsMelee { get; private set; }
+    
+    /**
+     * The base health value for this enemy
+     */
     public int BaseHealth { get; private set; }
+    
+    /**
+     * The movement speed of this enemy
+     */
     public float MoveSpeed { get; private set; }
+    
+    /**
+     * The damage dealt by this enemy's attacks
+     */
     public int Damage { get; private set; }
+    
+    /**
+     * The cooldown manager for this enemy's attacks
+     */
     public AttackCooldown AttackCooldown { get; private set; }
+    
+    /**
+     * The special ability of this enemy
+     */
     public Ability Ability { get; private set; }
     
+    /**
+     * The attack range of this enemy (0 for melee)
+     */
     public float Range { get; private set; }
     
+    /**
+     * Checks if the enemy is currently alive
+     * @return true if current health > 0, false otherwise
+     */
     public override bool IsAlive() => CurrentHealth > 0;
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                             ◆◆◆◆◆◆ CONSTRUCTOR ◆◆◆◆◆◆                                              ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 
+    /**
+     * Protected constructor for Enemy class
+     * @param position Initial position vector
+     * @param velocity Initial velocity vector
+     */
     protected Enemy(Vector2 position, Vector2 velocity) : base(position, velocity)
     {
         texture = Globals.Content.Load<Texture2D>("triangleRed");
@@ -37,6 +84,11 @@ public class Enemy : EntityBase
 //║                                           ◆◆◆◆◆◆ MONOGAME EVENTS ◆◆◆◆◆◆                                            ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 
+    /**
+     * Updates the enemy state each frame
+     * @param gameTime Current game timing snapshot
+     * @param playerPosition Current position of the player
+     */
     public void OnUpdate(GameTime gameTime, Vector2 playerPosition)
     {
         Vector2 direction = (playerPosition - Position);
@@ -57,6 +109,10 @@ public class Enemy : EntityBase
         BoundingBox = BoundingBox.CreateFromSphere(new BoundingSphere(new Vector3(Position.X,Position.Y,0), Size/2));
     }
 
+    /**
+     * Prevents this enemy from overlapping with other enemies
+     * @param allEnemies List of all active enemies to check against
+     */
     public void AvoidOverlap(List<Enemy> allEnemies)
     {
         float minDistance = Size * 2; // Distance minimale souhaitée
@@ -77,26 +133,23 @@ public class Enemy : EntityBase
         }
     }
 
+    /**
+     * Draws the enemy to the screen
+     * @param spriteBatch The SpriteBatch used for rendering
+     */
     public override void Draw(SpriteBatch spriteBatch)
     {
         SimpleShapes.Rectangle(Position, Vector2.One * Size, Color);
-        /*
-        spriteBatch.Draw(texture,
-            Position,
-            null,
-            Color.White,
-            0f,
-            new Vector2(texture.Width / 2, texture.Height / 2),
-            new Vector2(0.005f, 0.005f),
-            SpriteEffects.None,
-            0f);
-            */
     }
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                            ◆◆◆◆◆◆ CLASS METHODS ◆◆◆◆◆◆                                             ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 
+    /**
+     * Moves the enemy toward a specified direction
+     * @param directionToPlayer Normalized vector pointing toward player
+     */
     public void Move(Vector2 directionToPlayer)
     {
         float maxDistance = IsMelee ? 0 : 150;
@@ -111,6 +164,10 @@ public class Enemy : EntityBase
         }
     }
 
+    /**
+     * Performs an attack in the specified direction
+     * @param directionToPlayer Normalized vector pointing toward player
+     */
     public void Attack(Vector2 directionToPlayer)
     {
         if (IsMelee)
@@ -125,6 +182,10 @@ public class Enemy : EntityBase
         }
     }
     
+    /**
+     * Handles damage taken by this enemy
+     * @param offender The entity that caused the damage
+     */
     public override void Hit(EntityBase offender)
     {
         if (offender is not Projectile projectile) return;
@@ -137,42 +198,81 @@ public class Enemy : EntityBase
 //║                                               ◆◆◆◆◆◆ BUILDER ◆◆◆◆◆◆                                                ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 //-====================================================================================================================-
+    
+    /**
+     * Builder pattern implementation for constructing Enemy instances
+     */
     public class Builder
     {
         private readonly Enemy enemy;
 
+        /**
+         * Creates a new Enemy builder
+         * @param position Initial position
+         * @param velocity Initial velocity
+         */
         public Builder(Vector2 position, Vector2 velocity) => enemy = new Enemy(position, velocity);
         
+        /**
+         * Sets the enemy name
+         * @param name Enemy name
+         * @return Builder instance for chaining
+         */
         public Builder WithName(string name)
         {
             enemy.Name = name;
             return this;
         }
         
+        /**
+         * Sets the enemy color
+         * @param color Render color
+         * @return Builder instance for chaining
+         */
         public Builder WithColor(Color color)
         {
             enemy.Color = color;
             return this;
         }
         
+        /**
+         * Sets the enemy size
+         * @param enemy size
+         * @return Builder instance for chaining
+         */
         public Builder WithSize(float size)
         {
             enemy.Size = size;
             return this;
         }
         
+        /**
+         * Sets the enemy damage
+         * @param enemy damage
+         * @return Builder instance for chaining
+         */
         public Builder WithDamage(int damage)
         {
             enemy.Damage = damage;
             return this;
         }
         
+        /**
+         * Sets the enemy as melee
+         * @param is enemy melee ?
+         * @return Builder instance for chaining
+         */
         public Builder IsMelee(bool state)
         {
             enemy.IsMelee = state;
             return this;
         }
         
+        /**
+         * Sets the enemy health
+         * @param enemy health
+         * @return Builder instance for chaining
+         */
         public Builder WithHealth(int health)
         {
             enemy.BaseHealth = health;
@@ -180,32 +280,53 @@ public class Enemy : EntityBase
             return this;
         }
 
+        /**
+         * Sets the enemy speed
+         * @param enemy speed
+         * @return Builder instance for chaining
+         */
         public Builder WithMoveSpeed(float moveSpeed)
         {
             enemy.MoveSpeed = moveSpeed;
             return this;
         }
 
-        //TODO: Add Projectile check
+        /**
+         * Sets the enemy range
+         * @param enemy range
+         * @return Builder instance for chaining
+         */
         public Builder WithRange(float range)
         {
             enemy.Range = range;
             return this;
         }
         
+        /**
+         * Sets the enemy attack speed
+         * @param enemy attack speed
+         * @return Builder instance for chaining
+         */
         public Builder WithAttackCooldown(float cooldown)
         {
             enemy.AttackCooldown = new AttackCooldown(cooldown);
             return this;
         }
         
-        //TODO ADD CHECK IF RANGE
+        /**
+         * Sets the enemy range attack ability
+         * @param enemy range attack ability
+         * @return Builder instance for chaining
+         */
         public Builder WithAbility(Ability ability)
         {
             enemy.Ability = ability;
             return this;
         }
 
+        /**
+         * Validate value to create the enemy
+         */
         private void Validate()
         {
             if (string.IsNullOrEmpty(enemy.Name)) enemy.Name = "DefaultName";
@@ -227,6 +348,10 @@ public class Enemy : EntityBase
             }
         }
 
+        /**
+         * Constructs the final Enemy instance
+         * @return The built Enemy object
+         */
         public Enemy Build()
         {
             Validate();

@@ -4,22 +4,40 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace BossRush.Enemy;
 
+/**
+ * Manages all enemy entities in the game using a spatial partitioning system.
+ * Handles enemy spawning, updating, drawing, and proximity detection.
+ */
 public class EnemySystem
 {
     private static EnemySystem instance;
+    
+    /**
+     * Singleton instance accessor
+     */
     public static EnemySystem Instance => instance ??= new EnemySystem();
     
+    /**
+     * Spatial grid for efficient proximity checks
+     */
     private Dictionary<Vector2, List<Enemy>> spatialGrid = new();
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                               ◆◆◆◆◆◆ PROPERTIES ◆◆◆◆◆◆                                             ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+    
+    /**
+     * Active enemies in the game world
+     */
     public List<Enemy> Enemies { get; private set; } = new();
     
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                             ◆◆◆◆◆◆ CONSTRUCTOR ◆◆◆◆◆◆                                              ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 
+    /**
+     * Initializes the singleton instance
+     */
     public EnemySystem()
     {
         instance = this;
@@ -28,6 +46,12 @@ public class EnemySystem
 //╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 //║                                           ◆◆◆◆◆◆ MONOGAME EVENTS ◆◆◆◆◆◆                                            ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+    
+    /**
+     * Updates all active enemies
+     * @param gameTime Current game timing state
+     * @param target The target position enemies should track (typically player position)
+     */
     public void Update(GameTime gameTime, Vector2 target)
     {
         UpdatePositions();
@@ -44,6 +68,10 @@ public class EnemySystem
         }
     }
 
+    /**
+     * Draws all active enemies
+     * @param spriteBatch The SpriteBatch used for rendering
+     */
     public void Draw(SpriteBatch spriteBatch)
     {
         foreach (Enemy enemy in Enemies)
@@ -56,17 +84,29 @@ public class EnemySystem
 //║                                            ◆◆◆◆◆◆ CLASS METHODS ◆◆◆◆◆◆                                             ║
 //╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 
+    /**
+     * Registers a new enemy to the system
+     * @param enemy The enemy to register
+     */
     public void Register(Enemy enemy)
     {
         if (Enemies.Contains(enemy)) return;
         Enemies.Add(enemy);
     }
 
+    /**
+     * Removes an enemy from the system
+     * @param enemy The enemy to unregister
+     */
     public void Unregister(Enemy enemy)
     {
         Enemies.Remove(enemy);
     }
 
+    /**
+     * Generates a wave of enemies appropriate for the specified level
+     * @param level The difficulty level of the wave
+     */
     public void GetWave(int level)
     {
         LevelComposition levelComposition = new LevelComposition(level);
@@ -92,6 +132,11 @@ public class EnemySystem
         }
     }
 
+    /**
+     * Calculates spawn positions for a wave of enemies
+     * @param enemyCount Total number of enemies in wave
+     * @return Array of calculated spawn positions
+     */
     private Vector2[] GetPositions(int enemyCount)
     {
         Vector2[] positions = new Vector2[enemyCount];
@@ -107,6 +152,10 @@ public class EnemySystem
         return positions;
     }
     
+    /**
+     * Updates the spatial partitioning grid
+     * @param cellSize The size of each grid cell (default 32 units)
+     */
     public void UpdatePositions(float cellSize = 32f)
     {
         spatialGrid.Clear();
@@ -124,6 +173,12 @@ public class EnemySystem
         }
     }
 
+    /**
+     * Gets enemies near a specified position
+     * @param pos The center position to check
+     * @param cellSize The size of grid cells (default 32 units)
+     * @return List of nearby enemies within 3x3 grid cells
+     */
     public List<Enemy> GetNearbyEnemies(Vector2 pos, float cellSize = 32)
     {
         List<Enemy> result = new List<Enemy>();

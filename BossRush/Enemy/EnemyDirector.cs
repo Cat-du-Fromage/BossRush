@@ -3,23 +3,51 @@ using Microsoft.Xna.Framework;
 
 namespace BossRush.Enemy;
 
+/**
+ * Enemy Builder Directory
+ * Provides predefined enemy templates (melee, ranged, boss) with progressive difficulty scaling.
+ */
 public static class EnemyDirector
 {
+    /**
+     * Creates a melee enemy scaled to specified level
+     * @param level The difficulty level to scale stats
+     * @param position Spawn position in world coordinates
+     * @return Configured melee enemy instance
+     */
     public static Enemy CreateMeleeEnemyLevel(int level, Vector2 position)
     {
         return CreateBasicMeleeEnemy(position, new StatsMultiplicator(level));
     }
     
+    /**
+     * Creates a ranged enemy scaled to specified level
+     * @param level The difficulty level to scale stats
+     * @param position Spawn position in world coordinates
+     * @return Configured ranged enemy instance
+     */
     public static Enemy CreateRangeEnemyLevel(int level, Vector2 position)
     {
         return CreateBasicRangeEnemy(position, new StatsMultiplicator(level));
     }
     
+    /**
+     * Creates a boss enemy scaled to specified level
+     * @param level The difficulty level to scale stats
+     * @param position Spawn position in world coordinates
+     * @return Configured boss enemy instance
+     */
     public static Enemy CreateBossEnemyLevel(int level, Vector2 position)
     {
         return CreateBasicBossEnemy(position, new StatsMultiplicator(level));
     }
     
+    /**
+     * Template for basic melee enemy configuration
+     * @param position Spawn position in world coordinates
+     * @param multiplicator Stat scaling calculator
+     * @return Configured melee enemy
+     */
     private static Enemy CreateBasicMeleeEnemy(Vector2 position, StatsMultiplicator multiplicator)
     {
         return new Enemy.Builder(position, Vector2.Zero)
@@ -35,6 +63,12 @@ public static class EnemyDirector
             .Build();
     }
     
+    /**
+     * Template for basic ranged enemy configuration
+     * @param position Spawn position in world coordinates
+     * @param multiplicator Stat scaling calculator
+     * @return Configured ranged enemy
+     */
     private static Enemy CreateBasicRangeEnemy(Vector2 position, StatsMultiplicator multiplicator)
     {
         return new Enemy.Builder(position, Vector2.Zero)
@@ -51,6 +85,12 @@ public static class EnemyDirector
             .Build();
     }
     
+    /**
+     * Template for basic boss enemy configuration
+     * @param position Spawn position in world coordinates
+     * @param multiplicator Stat scaling calculator
+     * @return Configured boss enemy
+     */
     private static Enemy CreateBasicBossEnemy(Vector2 position, StatsMultiplicator multiplicator)
     {
         return new Enemy.Builder(position, Vector2.Zero)
