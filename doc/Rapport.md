@@ -58,7 +58,54 @@ La classe `ParticleSystem` fait le lien entre le `ParticleEmitter` et le `Partic
 Les composants d'interface utilisateur (UI) sont gérés dans le dossier `UIComponents`. Chaque composant est responsable d'une partie spécifique de l'interface, comme les boutons ou la barre de vie. Ces composants ont été conçus pour être réutilisables et configurables au besoin, permettant une personnalisation facile de l'interface utilisateur.
 
 ### Ennemies:
-les ennemies apparaissent à chaque niveau, leur nombre, types et puissances augmentent en fonction du niveau de la vague.
+Le système d'ennemis est un pilier central de notre jeu de type Boss Rush. Nous avons implémenté une architecture modulaire permettant de générer des vagues d'ennemies dont la difficulté évolue progressivement. Le système repose sur trois types d'ennemis distincts :
+
+1. Ennemis Mêlée : Combattants rapprochés avec des attaques puissantes mais une portée limitée
+
+2. Ennemis Distance : Attaquants à distance avec des dégâts modérés mais une grande zone de danger
+
+3. Boss : Ennemis élites apparaissant tous les 5 niveaux, combinant les deux styles de combat
+
+L'implémentation utilise plusieurs classes clés :
+nemy (Classe de base)
+```csharp
+// Gère le comportement fondamental de tous les ennemis
+// - Détection et poursuite du joueur
+// - Gestion des cooldowns d'attaque
+// - Collisions et dégâts
+```
+
+EnemyDirector (Factory)
+```csharp
+// Crée des ennemis pré-configurés selon leur type et niveau
+// - Applique des modificateurs de statistiques progressifs
+// - Garantit l'équilibrage entre les vagues
+```
+
+EnemySystem (Manager)
+```csharp
+// Contrôle l'ensemble des ennemis actifs
+// - Met à jour les positions et états
+// - Gère la génération des vagues
+// - Implémente un système de grille spatiale pour l'optimisation
+```
+
+LevelComposition
+```csharp
+// Calcule la composition de chaque vague
+// - Détermine le nombre et types d'ennemis
+// - Intègre des boss tous les 5 niveaux
+// - Gère la progression exponentielle de la difficulté
+```
+
+StatsMultiplicator
+```csharp
+// Applique des formules de scaling pour :
+// - Santé (+15% par niveau)
+// - Dégâts (+8% par niveau)
+// - Vitesse (+2% par niveau)
+// - Défense (logarithmique)
+```
 
 ### Global:
 La classe `Global` contient des constantes et des paramètres globaux utilisés dans tout le jeu, tels que les dimensions de la fenêtre, les couleurs et les ressources partagées. Elle permet de centraliser la configuration du jeu et d'éviter la duplication de code.
@@ -66,7 +113,33 @@ La classe `Global` contient des constantes et des paramètres globaux utilisés 
 ## Utilisation du pattern
 
 ### Ennemies:
-Le patterne Builder a été utile pour les enemies pour créer un grands nombre d'ennemies avec des caractéristique différentes sans pour antant passer par de l'héritage simplifiant grandement l'architecture du programme.
+Le pattern Builder a été essentiel pour la création d'ennemis variés tout en évitant une hiérarchie de classes complexe. Voici comment nous l'avons appliqué :
+
+Flexibilité : Permet de configurer facilement des dizaines de combinaisons de stats (dégâts, portée, vitesse) sans explosion combinatoire
+
+Lisibilité : Le code client reste clair grâce au chaînage de méthodes :
+
+```csharp
+new Enemy.Builder(position, Vector2.Zero)
+    .WithName("Boss")
+    .WithHealth(100)
+    .WithDamage(20)
+    .Build();
+```
+Validation : Le Builder intègre des contrôles pour garantir que chaque ennemi a des stats valides :
+
+```csharp
+if (enemy.Damage < 0) enemy.Damage = 0; // Valeurs minimales garanties
+```
+Extensibilité : Simplifie l'ajout de nouveaux attributs (comme les capacités spéciales) sans modifier les classes existantes
+
+Ce pattern nous a particulièrement aidés pour :
+
+Créer des variants d'ennemis avec peu de code
+
+Maintenir un équilibrage précis entre les niveaux
+
+Isoler la logique de construction complexe du reste du jeu
 
 ## Conclusion
 Notre projet de jeu vidéo a été une expérience enrichissante qui nous a permis de mettre en pratique nos compétences apprises en cours, notamment en programmation orientée objet et en design patterns. L'utilisation du pattern Builder a été particulièrement bénéfique pour structurer le code de manière modulaire et extensible, facilitant ainsi l'ajout de nouvelles fonctionnalités et la maintenance du projet.
